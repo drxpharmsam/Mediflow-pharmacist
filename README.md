@@ -1,14 +1,20 @@
 # MediFlow Pharmacist
 
-A desktop-focused pharmacist web application built with React + TypeScript + Vite and Material UI.
+A fully-responsive pharmacist web application built with React + TypeScript + Vite and Material UI, featuring a glassmorphism UI with the **Blueberry Cotton Candy** palette (`#FFB7FD`, `#A8C0EE`, `#C58BE5`).
+
+> ⚠️ **TEST / DEV MODE — OTP Auth:** The OTP authentication system is currently running in **TEST MODE**. Any valid email + phone combination can be used. The OTP for both email and phone is **`123456`**. This is clearly labelled in the UI. Backend OTP integration will be enabled once the server is updated.
 
 ## Features
 
-- OTP-based phone login
+- Sign In / Register flow with email + phone identity inputs
+- Test OTP verification (fixed OTP `123456` — TEST MODE, displayed in UI)
+- Onboarding flow: personal info (name, age, gender, photo, shop address) + geolocation capture
+- Session persisted in `localStorage`
 - Orders management with status updates
 - Prescriptions view (orders with attached prescriptions)
 - Medicine inventory with search
-- Desktop-only (minimum 1100px viewport width)
+- Fully responsive (mobile bottom nav + desktop sidebar)
+- Glassmorphism UI with Blueberry Cotton Candy palette
 
 ## Tech Stack
 
@@ -70,17 +76,18 @@ npm run preview
 src/
 ├── api/          # Axios API modules (auth, orders, medicines)
 ├── components/   # Shared components (Layout, DesktopGuard, OrdersTable, ProtectedRoute)
-├── context/      # AuthContext with localStorage persistence
-├── pages/        # LoginPage, OrdersPage, PrescriptionsPage, InventoryPage
-├── types.ts      # Shared TypeScript interfaces
-└── theme.ts      # MUI theme
+├── context/      # AuthContext with localStorage persistence + profile management
+├── pages/        # LoginPage, OnboardingPage, OrdersPage, PrescriptionsPage, InventoryPage
+├── types.ts      # Shared TypeScript interfaces (User, UserProfile, Order, Medicine)
+└── theme.ts      # MUI theme + glassmorphism helpers
 ```
 
 ## Pages
 
 | Route | Description |
 |---|---|
-| `/#/login` | OTP phone login |
+| `/#/login` | Sign In / Register with email + phone + test OTP |
+| `/#/onboarding` | Personal info + location setup (new users) |
 | `/#/orders` | All orders table with status update |
 | `/#/prescriptions` | Orders with prescriptions attached |
 | `/#/inventory` | Medicine catalog with search |

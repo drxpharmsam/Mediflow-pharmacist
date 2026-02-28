@@ -1,9 +1,19 @@
 export interface User {
   _id: string
   name?: string
+  email?: string
   phone: string
   role?: string
   token?: string
+}
+
+export interface UserProfile {
+  name: string
+  age: string
+  gender: string
+  photo: string
+  shopAddress: string
+  location?: { lat: number; lng: number; accuracy: number }
 }
 
 export interface Order {
