@@ -7,6 +7,7 @@ import DesktopGuard from './components/DesktopGuard'
 import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
 import LoginPage from './pages/LoginPage'
+import OnboardingPage from './pages/OnboardingPage'
 import OrdersPage from './pages/OrdersPage'
 import PrescriptionsPage from './pages/PrescriptionsPage'
 import InventoryPage from './pages/InventoryPage'
@@ -20,6 +21,14 @@ function App() {
           <DesktopGuard>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
+              <Route
+                path="/onboarding"
+                element={
+                  <ProtectedRoute>
+                    <OnboardingPage />
+                  </ProtectedRoute>
+                }
+              />
               <Route
                 path="/"
                 element={
