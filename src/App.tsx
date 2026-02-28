@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { ThemeProvider } from '@mui/material/styles'
 import CssBaseline from '@mui/material/CssBaseline'
 import { AuthProvider } from './context/AuthContext'
@@ -16,7 +16,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AuthProvider>
-        <BrowserRouter>
+        <HashRouter>
           <DesktopGuard>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
@@ -36,7 +36,7 @@ function App() {
               <Route path="*" element={<Navigate to="/orders" replace />} />
             </Routes>
           </DesktopGuard>
-        </BrowserRouter>
+        </HashRouter>
       </AuthProvider>
     </ThemeProvider>
   )
