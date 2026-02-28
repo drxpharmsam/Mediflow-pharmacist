@@ -80,7 +80,29 @@ src/
 
 | Route | Description |
 |---|---|
-| `/login` | OTP phone login |
-| `/orders` | All orders table with status update |
-| `/prescriptions` | Orders with prescriptions attached |
-| `/inventory` | Medicine catalog with search |
+| `/#/login` | OTP phone login |
+| `/#/orders` | All orders table with status update |
+| `/#/prescriptions` | Orders with prescriptions attached |
+| `/#/inventory` | Medicine catalog with search |
+
+## Deployment – GitHub Pages
+
+The app is configured to deploy to GitHub Pages at `https://<user>.github.io/Mediflow-pharmacist/`.
+
+### Automatic deployment
+
+Pushing to the `main` branch triggers the [GitHub Actions workflow](.github/workflows/deploy.yml) which builds the app and deploys it to Pages automatically.
+
+Enable GitHub Pages in the repository settings:
+
+1. Go to **Settings → Pages**.
+2. Set **Source** to **GitHub Actions**.
+
+The live site will be available at `https://drxpharmsam.github.io/Mediflow-pharmacist/`.
+
+### Manual deployment
+
+```bash
+npm run build
+# Upload the contents of dist/ to your hosting provider
+```
