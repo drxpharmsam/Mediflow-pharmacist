@@ -33,7 +33,9 @@ export interface Medicine {
   _id: string
   name: string
   category?: string
+  type?: string
   price?: number
   stock?: number
   description?: string
+  imageUrl?: string
 }
