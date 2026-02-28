@@ -59,9 +59,11 @@ export default function LoginPage() {
       alignItems="center"
       justifyContent="center"
       minHeight="100vh"
-      bgcolor="grey.100"
+      sx={{
+        background: 'linear-gradient(135deg, #FFB7FD 0%, #C58BE5 55%, #A8C0EE 100%)',
+      }}
     >
-      <Paper elevation={3} sx={{ p: 4, width: 360 }}>
+      <Paper elevation={4} sx={{ p: 4, width: 360, borderRadius: 3 }}>
         <Typography variant="h5" mb={3} textAlign="center">
           MediFlow Pharmacist
         </Typography>
