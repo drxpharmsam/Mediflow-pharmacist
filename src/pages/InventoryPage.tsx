@@ -27,8 +27,6 @@ import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import AddIcon from '@mui/icons-material/Add'
 import ImageIcon from '@mui/icons-material/Image'
-import LockIcon from '@mui/icons-material/Lock'
-import { useAuth } from '../context/AuthContext'
 import { getMedicines, addMedicine, updateMedicine, deleteMedicine } from '../api/medicines'
 import type { Medicine } from '../types'
 import type { MedicinePayload } from '../api/medicines'
@@ -52,11 +50,14 @@ const EMPTY_FORM: MedicinePayload = {
   imageUrl: '',
 }
 
-// ─── Roles allowed to access this page ────────────────────────────────────────
-const ALLOWED_ROLES = ['pharmacist', 'admin']
+// NOTE: Role-based restrictions removed — any logged-in user may manage inventory.
+// To re-add role restrictions in the future, define ALLOWED_ROLES here and check
+// `user?.role` before rendering actions or calling API functions.
 
 export default function InventoryPage() {
-  const { user } = useAuth()
+  // NOTE: To add role-based restrictions in the future, import useAuth and check
+  // user?.role before rendering Add/Edit/Delete actions or calling API functions.
+  // e.g.: const { user } = useAuth(); if (user?.role !== 'admin') return <AccessDenied />
 
   const [medicines, setMedicines] = useState<Medicine[]>([])
   const [loading, setLoading] = useState(true)
@@ -76,9 +77,11 @@ export default function InventoryPage() {
   // Delete confirm state
   const [deleteTarget, setDeleteTarget] = useState<Medicine | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
 
-  // ── Role guard ─────────────────────────────────────────────────────────────
-  const isAllowed = ALLOWED_ROLES.includes((user?.role ?? '').toLowerCase())
+  // ── Role guard removed ─────────────────────────────────────────────────────
+  // All logged-in users can load and manage inventory.
+  // To restrict by role in the future, add a check here (e.g. user?.role === 'admin').
 
   // ── Revoke object URL when imagePreview changes or component unmounts ──────
   useEffect(() => {
@@ -91,14 +94,13 @@ export default function InventoryPage() {
 
   // ── Load medicines ─────────────────────────────────────────────────────────
   useEffect(() => {
-    if (!isAllowed) return
     getMedicines()
       .then((data) => { setMedicines(data); setError('') })
       .catch((err: unknown) => {
         setError(err instanceof Error ? err.message : 'Failed to load medicines')
       })
       .finally(() => setLoading(false))
-  }, [isAllowed])
+  }, [])
 
   // ── Filter ─────────────────────────────────────────────────────────────────
   const filtered = medicines.filter((m) => {
@@ -201,37 +203,17 @@ export default function InventoryPage() {
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) return
     setDeleting(true)
+    setDeleteError('')
     try {
       await deleteMedicine(deleteTarget._id)
       setMedicines((prev) => prev.filter((m) => m._id !== deleteTarget._id))
       setDeleteTarget(null)
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to delete medicine.')
+      // Show error inside the dialog so the table remains visible
+      setDeleteError(err instanceof Error ? err.message : 'Failed to delete medicine.')
     } finally {
       setDeleting(false)
     }
-  }
-
-  // ── Render: access denied ──────────────────────────────────────────────────
-  if (!isAllowed) {
-    return (
-      <Box
-        display="flex"
-        flexDirection="column"
-        alignItems="center"
-        justifyContent="center"
-        minHeight="60vh"
-        gap={2}
-      >
-        <LockIcon sx={{ fontSize: 64, color: 'text.disabled' }} />
-        <Typography variant="h6" color="text.secondary">
-          Access Restricted
-        </Typography>
-        <Typography variant="body2" color="text.disabled">
-          Only pharmacists and admins can manage the inventory.
-        </Typography>
-      </Box>
-    )
   }
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -266,7 +248,7 @@ export default function InventoryPage() {
       {!loading && error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
       {/* Table */}
-      {!loading && !error && (
+      {!loading && (
         <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: '0 2px 12px rgba(197,139,229,0.12)' }}>
           <Table size="small">
             <TableHead>
@@ -463,15 +445,16 @@ export default function InventoryPage() {
       </Dialog>
 
       {/* ── Delete Confirm Dialog ─────────────────────────────────────────── */}
-      <Dialog open={!!deleteTarget} onClose={() => setDeleteTarget(null)} maxWidth="xs">
+      <Dialog open={!!deleteTarget} onClose={() => { setDeleteTarget(null); setDeleteError('') }} maxWidth="xs">
         <DialogTitle>Delete Medicine?</DialogTitle>
         <DialogContent>
+          {deleteError && <Alert severity="error" sx={{ mb: 2 }}>{deleteError}</Alert>}
           <Typography>
             Are you sure you want to delete <strong>{deleteTarget?.name}</strong>? This action cannot be undone.
           </Typography>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setDeleteTarget(null)} disabled={deleting}>
+          <Button onClick={() => { setDeleteTarget(null); setDeleteError('') }} disabled={deleting}>
             Cancel
           </Button>
           <Button
