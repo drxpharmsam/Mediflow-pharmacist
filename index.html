@@ -1,18 +1,158 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="refresh" content="0;url=pharmacist.html" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MediFlow Pharmacist</title>
-    <style>
-      body { margin: 0; display: flex; align-items: center; justify-content: center;
-             min-height: 100vh; font-family: 'Segoe UI', sans-serif;
-             background: linear-gradient(135deg, #055C61, #0A858C); color: #fff; }
-      a { color: #A5E6E2; font-weight: 700; }
-    </style>
-  </head>
-  <body>
-    <p>Opening MediFlow Pharmacist… <a href="pharmacist.html">Click here if not redirected</a></p>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediFlow – Pharmacist Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- Sidebar Overlay (mobile) -->
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+  <!-- ── Sidebar ── -->
+  <aside id="sidebar">
+    <div class="sidebar-logo">
+      <h1>Medi<span>Flow</span> 💊</h1>
+    </div>
+    <div class="sidebar-profile">
+      <div class="sidebar-avatar">P</div>
+      <div class="sidebar-profile-info">
+        <div class="name">Pharmacist</div>
+        <div class="role">Registered Pharmacist</div>
+      </div>
+    </div>
+    <nav>
+      <div class="nav-item active" data-section="dashboard"><span class="icon">🏥</span> Dashboard</div>
+      <div class="nav-item" data-section="orders"><span class="icon">📦</span> Order Management</div>
+      <div class="nav-item" data-section="prescriptions"><span class="icon">🧾</span> Prescription Verification</div>
+      <div class="nav-item" data-section="inventory"><span class="icon">💊</span> Inventory Management</div>
+      <div class="nav-item" data-section="substitution"><span class="icon">🔄</span> Substitution Control</div>
+      <div class="nav-item" data-section="analytics"><span class="icon">📊</span> Sales &amp; Analytics</div>
+      <div class="nav-item" data-section="delivery"><span class="icon">🚚</span> Delivery Coordination</div>
+      <div class="nav-item" data-section="chronic"><span class="icon">🧠</span> Chronic Refill</div>
+      <div class="nav-item" data-section="communication"><span class="icon">📩</span> Communication</div>
+      <div class="nav-item" data-section="payment"><span class="icon">💰</span> Payment &amp; Settlement</div>
+      <div class="nav-item" data-section="compliance"><span class="icon">🛡️</span> Compliance &amp; Legal</div>
+      <div class="nav-item" data-section="returns"><span class="icon">🔁</span> Return &amp; Refund</div>
+      <div class="nav-item" data-section="documents"><span class="icon">📁</span> Document Storage</div>
+      <div class="nav-item" data-section="settings"><span class="icon">⚙️</span> Settings</div>
+    </nav>
+    <div class="sidebar-footer">MediFlow v1.0 · Pharmacist Portal</div>
+  </aside>
+
+  <!-- ── Main Content ── -->
+  <div id="main-content">
+
+    <!-- Top Bar -->
+    <header id="top-bar">
+      <button id="hamburger" aria-label="Toggle menu">☰</button>
+      <span id="page-title">🏥 Dashboard</span>
+      <div class="top-bar-actions">
+        <div class="icon-btn" title="Notifications" onclick="showToast('No new notifications','info')">
+          🔔<span class="notif-badge"></span>
+        </div>
+        <div class="profile-btn" title="Profile" onclick="navigateTo('settings')">P</div>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <main id="page-content">
+
+      <!-- 1. Dashboard -->
+      <section id="section-dashboard" class="page-section active">
+        <div class="empty-state"><div class="empty-icon">⏳</div><p>Loading dashboard…</p></div>
+      </section>
+
+      <!-- 2. Orders -->
+      <section id="section-orders" class="page-section">
+        <div class="empty-state"><div class="empty-icon">⏳</div><p>Loading orders…</p></div>
+      </section>
+
+      <!-- 3. Prescriptions -->
+      <section id="section-prescriptions" class="page-section">
+        <div class="empty-state"><div class="empty-icon">⏳</div><p>Loading prescriptions…</p></div>
+      </section>
+
+      <!-- 4. Inventory -->
+      <section id="section-inventory" class="page-section">
+        <div class="empty-state"><div class="empty-icon">⏳</div><p>Loading inventory…</p></div>
+      </section>
+
+      <!-- 5. Substitution -->
+      <section id="section-substitution" class="page-section">
+        <div class="empty-state"><div class="empty-icon">⏳</div><p>Loading substitutions…</p></div>
+      </section>
+
+      <!-- 6. Analytics -->
+      <section id="section-analytics" class="page-section">
+        <div class="empty-state"><div class="empty-icon">⏳</div><p>Loading analytics…</p></div>
+      </section>
+
+      <!-- 7. Delivery -->
+      <section id="section-delivery" class="page-section">
+        <div class="empty-state"><div class="empty-icon">⏳</div><p>Loading delivery…</p></div>
+      </section>
+
+      <!-- 8. Chronic Refill -->
+      <section id="section-chronic" class="page-section">
+        <div class="empty-state"><div class="empty-icon">⏳</div><p>Loading chronic refill…</p></div>
+      </section>
+
+      <!-- 9. Communication -->
+      <section id="section-communication" class="page-section">
+        <div class="empty-state"><div class="empty-icon">⏳</div><p>Loading communication…</p></div>
+      </section>
+
+      <!-- 10. Payment -->
+      <section id="section-payment" class="page-section">
+        <div class="empty-state"><div class="empty-icon">⏳</div><p>Loading payment…</p></div>
+      </section>
+
+      <!-- 11. Compliance -->
+      <section id="section-compliance" class="page-section">
+        <div class="empty-state"><div class="empty-icon">⏳</div><p>Loading compliance…</p></div>
+      </section>
+
+      <!-- 12. Returns -->
+      <section id="section-returns" class="page-section">
+        <div class="empty-state"><div class="empty-icon">⏳</div><p>Loading returns…</p></div>
+      </section>
+
+      <!-- 13. Documents -->
+      <section id="section-documents" class="page-section">
+        <div class="empty-state"><div class="empty-icon">⏳</div><p>Loading documents…</p></div>
+      </section>
+
+      <!-- 14. Settings -->
+      <section id="section-settings" class="page-section">
+        <div class="empty-state"><div class="empty-icon">⏳</div><p>Loading settings…</p></div>
+      </section>
+
+    </main>
+  </div><!-- /#main-content -->
+</div><!-- /#app -->
+
+<!-- Modal -->
+<div id="modal-overlay" class="modal-overlay hidden">
+  <div id="modal-box" class="modal-box">
+    <div class="modal-header">
+      <span id="modal-title" class="modal-title"></span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-body"></div>
+    <div id="modal-footer" class="modal-footer"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<script src="app.js"></script>
+</body>
 </html>
