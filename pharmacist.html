@@ -6,9 +6,8 @@
   <title>MediFlow — Pharmacist Portal</title>
   <meta name="description" content="MediFlow Pharmacist: Manage orders, prescriptions, and inventory all in one place.">
   <meta name="theme-color" content="#0A858C">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
+    /* ─── No external dependencies — works fully offline in Chrome ─── */
     :root {
       --c1: #E0F7F6;
       --c2: #A5E6E2;
@@ -23,7 +22,8 @@
       --gray-text: #6B7280;
       --bg-color: #F3F4F6;
     }
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Plus Jakarta Sans', sans-serif; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent;
+        font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', Arial, sans-serif; }
     ::-webkit-scrollbar { width: 0; height: 0; background: transparent; }
     body, html { margin: 0; padding: 0; height: 100%; width: 100%; background-color: #E5E7EB; overflow: hidden; display: flex; justify-content: center; align-items: center; }
     #app-frame { width: 100%; height: 100%; background: #F9FAFB; position: relative; overflow: hidden; display: flex; flex-direction: column; }
@@ -221,7 +221,7 @@
 
   <!-- ═══ PILL LOADER ═══ -->
   <div id="pill-loader">
-    <i class="fa-solid fa-pills pill-icon"></i>
+    <div class="pill-icon">💊</div>
     <p style="margin-top:20px; letter-spacing:3px; font-size:13px; font-weight:800;">LOADING</p>
   </div>
 
@@ -237,18 +237,18 @@
     <div class="glass-sheet">
       <h2 style="font-size:26px;color:#111827;margin-top:0;margin-bottom:6px;">Welcome Back</h2>
       <p style="font-size:13px;color:var(--gray-text);font-weight:600;margin-bottom:22px;">Sign in to manage your pharmacy</p>
-      <div class="test-chip"><i class="fa-solid fa-flask"></i> TEST MODE — OTP: 123456</div>
+      <div class="test-chip">🧪 TEST MODE — OTP: 123456</div>
       <div class="input-group">
-        <label>Gmail Address</label>
-        <input type="email" id="login-email" placeholder="name@gmail.com" autocomplete="email">
-        <div id="email-err" class="error-hint">Please enter a valid Gmail address</div>
+        <label>Email Address</label>
+        <input type="email" id="login-email" placeholder="name@example.com" autocomplete="email">
+        <div id="email-err" class="error-hint">Please enter a valid email address</div>
       </div>
       <div class="input-group">
         <label>Phone Number</label>
         <input type="tel" id="login-phone" placeholder="+234 800 000 0000">
         <div id="phone-err" class="error-hint">Please enter your phone number</div>
       </div>
-      <button class="btn-primary" id="send-otp-btn" onclick="sendOtp()">Continue <i class="fa-solid fa-arrow-right" style="margin-left:8px;"></i></button>
+      <button class="btn-primary" id="send-otp-btn" onclick="sendOtp()">Continue →</button>
     </div>
   </div>
 
@@ -261,7 +261,7 @@
     <div class="glass-sheet">
       <h2 style="font-size:26px;color:#111827;margin-top:0;margin-bottom:6px;">Enter OTP Code</h2>
       <p id="otp-hint" style="font-size:13px;color:var(--gray-text);font-weight:600;margin-bottom:4px;">Code sent to <span id="otp-email-display" style="color:var(--c4);font-weight:800;"></span></p>
-      <div class="test-chip" style="margin-top:12px;"><i class="fa-solid fa-flask"></i> Use <strong style="margin:0 4px;">123456</strong> in test mode</div>
+      <div class="test-chip" style="margin-top:12px;">🧪 Use <strong style="margin:0 4px;">123456</strong> in test mode</div>
       <div class="otp-row">
         <input type="tel" class="otp-box" id="otp-1" maxlength="1" inputmode="numeric" oninput="otpNext(this,1)">
         <input type="tel" class="otp-box" id="otp-2" maxlength="1" inputmode="numeric" oninput="otpNext(this,2)">
@@ -294,7 +294,7 @@
       </div>
       <div class="form-group"><label class="form-label">Pharmacy / Shop Name</label><input class="form-input" type="text" id="ob-shop" placeholder="MediFlow Pharmacy, Victoria Island"></div>
       <div class="form-group" style="margin-bottom:22px;"><label class="form-label">Age</label><input class="form-input" type="number" id="ob-age" placeholder="e.g. 35" min="18" max="99"></div>
-      <button class="btn-primary" onclick="completeOnboarding()">Get Started <i class="fa-solid fa-check" style="margin-left:8px;"></i></button>
+      <button class="btn-primary" onclick="completeOnboarding()">Get Started ✓</button>
     </div>
   </div>
 
@@ -321,22 +321,22 @@
       <div class="tab-pane active" id="tab-orders">
         <div class="stats-row">
           <div class="stat-card">
-            <div class="stat-icon" style="background:#FEF3C7;color:#D97706;"><i class="fa-solid fa-clock"></i></div>
+            <div class="stat-icon" style="background:#FEF3C7;color:#D97706;">⏱️</div>
             <div class="stat-val" id="stat-pending">0</div>
             <div class="stat-lbl">Pending Orders</div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon" style="background:var(--success-bg);color:#059669;"><i class="fa-solid fa-truck"></i></div>
+            <div class="stat-icon" style="background:var(--success-bg);color:#059669;">🚚</div>
             <div class="stat-val" id="stat-delivered">0</div>
             <div class="stat-lbl">Delivered Today</div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon" style="background:#DBEAFE;color:#2563EB;"><i class="fa-solid fa-spinner"></i></div>
+            <div class="stat-icon" style="background:#DBEAFE;color:#2563EB;">⚙️</div>
             <div class="stat-val" id="stat-processing">0</div>
             <div class="stat-lbl">Processing</div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon" style="background:var(--c1);color:var(--c4);"><i class="fa-solid fa-naira-sign"></i></div>
+            <div class="stat-icon" style="background:var(--c1);color:var(--c4);">₦</div>
             <div class="stat-val" id="stat-revenue">₦0</div>
             <div class="stat-lbl">Today's Revenue</div>
           </div>
@@ -360,7 +360,7 @@
       <!-- ── INVENTORY TAB ── -->
       <div class="tab-pane" id="tab-inventory">
         <div class="search-wrap">
-          <i class="fa-solid fa-search"></i>
+          🔍
           <input class="search-input" type="text" id="inv-search" placeholder="Search medicines…" oninput="filterInventory()">
         </div>
         <div class="cat-pills" id="cat-pills-row"></div>
@@ -411,30 +411,30 @@
         <div id="pt-rx" class="ptab-panel"></div>
         <div id="pt-orders" class="ptab-panel" style="display:none;"></div>
         <div id="pt-earn" class="ptab-panel" style="display:none;"></div>
-        <button onclick="handleLogout()" style="width:100%;margin-top:20px;padding:16px;background:var(--error-bg);border:none;border-radius:18px;color:var(--error);font-size:14px;font-weight:800;cursor:pointer;"><i class="fa-solid fa-right-from-bracket" style="margin-right:8px;"></i>Logout</button>
+        <button onclick="handleLogout()" style="width:100%;margin-top:20px;padding:16px;background:var(--error-bg);border:none;border-radius:18px;color:var(--error);font-size:14px;font-weight:800;cursor:pointer;">⬅ Logout</button>
       </div>
 
     </div><!-- /main-scroll -->
 
     <!-- Add Medicine FAB (visible only in inventory tab) -->
-    <button class="fab" id="fab-add" onclick="openAddMed()" style="display:none;" aria-label="Add medicine"><i class="fa-solid fa-plus"></i></button>
+    <button class="fab" id="fab-add" onclick="openAddMed()" style="display:none;" aria-label="Add medicine">+</button>
 
     <!-- Nav Dock -->
     <div class="nav-dock">
       <div class="nav-item active" id="nav-orders" onclick="switchTab('tab-orders','nav-orders')">
-        <i class="fa-solid fa-clipboard-list"></i>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="12" y2="16"/></svg>
         <span class="nav-label">Orders</span>
       </div>
       <div class="nav-item" id="nav-prescriptions" onclick="switchTab('tab-prescriptions','nav-prescriptions')">
-        <i class="fa-solid fa-file-medical"></i>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
         <span class="nav-label">Rx</span>
       </div>
       <div class="nav-item" id="nav-inventory" onclick="switchTab('tab-inventory','nav-inventory')">
-        <i class="fa-solid fa-pills"></i>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v4c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 9v4c0 1.66 4.03 3 9 3s9-1.34 9-3V9"/><path d="M3 13v4c0 1.66 4.03 3 9 3s9-1.34 9-3V13"/></svg>
         <span class="nav-label">Inventory</span>
       </div>
       <div class="nav-item" id="nav-profile" onclick="switchTab('tab-profile','nav-profile')">
-        <i class="fa-solid fa-user"></i>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         <span class="nav-label">Profile</span>
       </div>
     </div>
@@ -486,7 +486,9 @@
 
 <script>
 /* ═══════════════════════════════════════════════════════════
-   LOCAL MOCK DATA
+   ⚠  LOCAL DEMO DATA — delete this entire block once you
+      connect to a live API. Everything below up to the line
+      "END OF LOCAL DEMO DATA" is safe to remove.
 ═══════════════════════════════════════════════════════════ */
 const MOCK_ORDERS = [
   {
@@ -530,41 +532,65 @@ const MOCK_ORDERS = [
     status:'processing', hasPrescription:true,
     medicines:[{name:'Salbutamol Inhaler',qty:1,price:850},{name:'Prednisolone 5mg',qty:20,price:90}],
     totalAmount:2650, createdAt: new Date(Date.now()-3*60*60*1000).toISOString()
-  }
+  },
+  {
+    id:'ord_008', patientName:'Henry Eze', patientPhone:'+2348089012345',
+    status:'pending', hasPrescription:false,
+    medicines:[{name:'Omeprazole 20mg',qty:14,price:130}],
+    totalAmount:1820, createdAt: new Date(Date.now()-30*60*1000).toISOString()
+  },
+  {
+    id:'ord_009', patientName:'Ifeoma Chukwu', patientPhone:'+2348090123456',
+    status:'delivered', hasPrescription:true,
+    medicines:[{name:'Amoxicillin 500mg',qty:10,price:150},{name:'Ibuprofen 400mg',qty:15,price:80}],
+    totalAmount:2700, createdAt: new Date(Date.now()-8*60*60*1000).toISOString()
+  },
+  {
+    id:'ord_010', patientName:'James Adeleke', patientPhone:'+2348001234567',
+    status:'cancelled', hasPrescription:false,
+    medicines:[{name:'Paracetamol 500mg',qty:20,price:50}],
+    totalAmount:1000, createdAt: new Date(Date.now()-12*60*60*1000).toISOString()
+  },
 ];
 
 const MOCK_PRESCRIPTIONS = [
-  { id:'RX-001', patient:'Alice Johnson', patientPhone:'+2348012345678', medicine:'Amoxicillin 500mg', qty:20, date:'2026-02-28', status:'Filled', doctor:'Dr. Adeolu Bright', notes:'Take twice daily after meals' },
-  { id:'RX-002', patient:'Bob Smith', patientPhone:'+2348023456789', medicine:'Lisinopril 10mg', qty:30, date:'2026-03-01', status:'Pending', doctor:'Dr. Chisom Eze', notes:'Once daily in the morning' },
-  { id:'RX-003', patient:'Carol White', patientPhone:'+2348034567890', medicine:'Metformin 850mg', qty:60, date:'2026-03-02', status:'Filled', doctor:'Dr. Yusuf Bello', notes:'With meals, 3×/day' },
-  { id:'RX-004', patient:'David Brown', patientPhone:'+2348045678901', medicine:'Atorvastatin 20mg', qty:30, date:'2026-03-03', status:'Processing', doctor:'Dr. Adaeze Okafor', notes:'Once at bedtime' },
-  { id:'RX-005', patient:'Eve Davis', patientPhone:'+2348056789012', medicine:'Augmentin 625mg', qty:14, date:'2026-03-03', status:'Pending', doctor:'Dr. Adeolu Bright', notes:'Every 12 hours with food' },
-  { id:'RX-006', patient:'Grace Nwosu', patientPhone:'+2348078901234', medicine:'Salbutamol Inhaler', qty:1, date:'2026-03-03', status:'Processing', doctor:'Dr. Fatima Umar', notes:'As needed for breathlessness' }
+  { id:'RX-001', patient:'Alice Johnson',  patientPhone:'+2348012345678', medicine:'Amoxicillin 500mg',        qty:20, date:'2026-02-28', status:'Filled',     doctor:'Dr. Adeolu Bright',  notes:'Take twice daily after meals' },
+  { id:'RX-002', patient:'Bob Smith',      patientPhone:'+2348023456789', medicine:'Lisinopril 10mg',           qty:30, date:'2026-03-01', status:'Pending',    doctor:'Dr. Chisom Eze',     notes:'Once daily in the morning' },
+  { id:'RX-003', patient:'Carol White',    patientPhone:'+2348034567890', medicine:'Metformin 850mg',           qty:60, date:'2026-03-02', status:'Filled',     doctor:'Dr. Yusuf Bello',    notes:'With meals, 3 times per day' },
+  { id:'RX-004', patient:'David Brown',    patientPhone:'+2348045678901', medicine:'Atorvastatin 20mg',         qty:30, date:'2026-03-03', status:'Processing', doctor:'Dr. Adaeze Okafor',  notes:'Once at bedtime' },
+  { id:'RX-005', patient:'Eve Davis',      patientPhone:'+2348056789012', medicine:'Augmentin 625mg',           qty:14, date:'2026-03-03', status:'Pending',    doctor:'Dr. Adeolu Bright',  notes:'Every 12 hours with food' },
+  { id:'RX-006', patient:'Grace Nwosu',    patientPhone:'+2348078901234', medicine:'Salbutamol 100mcg Inhaler', qty:1,  date:'2026-03-03', status:'Processing', doctor:'Dr. Fatima Umar',    notes:'As needed for breathlessness' },
+  { id:'RX-007', patient:'Ifeoma Chukwu', patientPhone:'+2348090123456', medicine:'Amoxicillin 500mg',         qty:10, date:'2026-03-02', status:'Filled',     doctor:'Dr. Chukwu Emeka',   notes:'Complete the full course' },
+  { id:'RX-008', patient:'Henry Eze',      patientPhone:'+2348089012345', medicine:'Omeprazole 20mg',           qty:14, date:'2026-03-03', status:'Pending',    doctor:'Dr. Ngozi Obi',      notes:'30 mins before breakfast' },
 ];
 
 let MOCK_MEDICINES = [
-  { id:'med_001', name:'Amoxicillin 500mg', category:'Infection', type:'Capsule', price:150, stock:200, description:'Broad-spectrum antibiotic for bacterial infections.' },
-  { id:'med_002', name:'Paracetamol 500mg', category:'Fever', type:'Tablet', price:50, stock:500, description:'Analgesic and antipyretic for pain and fever relief.' },
-  { id:'med_003', name:'Ibuprofen 400mg', category:'Pain', type:'Tablet', price:80, stock:350, description:'NSAID for pain, fever and inflammation.' },
-  { id:'med_004', name:'Lisinopril 10mg', category:'Hypertension', type:'Tablet', price:200, stock:120, description:'ACE inhibitor for high blood pressure and heart failure.' },
-  { id:'med_005', name:'Metformin 850mg', category:'Diabetes', type:'Tablet', price:120, stock:180, description:'First-line medication for type 2 diabetes.' },
-  { id:'med_006', name:'Atorvastatin 20mg', category:'Hypertension', type:'Tablet', price:180, stock:90, description:'Statin to lower cholesterol and reduce cardiovascular risk.' },
-  { id:'med_007', name:'Cetirizine 10mg', category:'Allergy', type:'Tablet', price:60, stock:250, description:'Antihistamine for allergy relief including hay fever.' },
-  { id:'med_008', name:'Salbutamol 100mcg Inhaler', category:'Asthma', type:'Inhaler', price:850, stock:45, description:'Bronchodilator for asthma and COPD.' },
-  { id:'med_009', name:'Augmentin 625mg', category:'Infection', type:'Tablet', price:350, stock:80, description:'Amoxicillin + clavulanate for resistant infections.' },
-  { id:'med_010', name:'Vitamin C 500mg', category:'Supplement', type:'Tablet', price:60, stock:400, description:'Ascorbic acid supplement to support immune function.' },
-  { id:'med_011', name:'Prednisolone 5mg', category:'Inflammation', type:'Tablet', price:90, stock:15, description:'Corticosteroid for inflammatory and immune conditions.' },
-  { id:'med_012', name:'Omeprazole 20mg', category:'Gastro', type:'Capsule', price:130, stock:220, description:'Proton pump inhibitor for acid reflux and ulcers.' }
+  { id:'med_001', name:'Amoxicillin 500mg',        category:'Infection',    type:'Capsule', price:150, stock:200, description:'Broad-spectrum antibiotic for bacterial infections.' },
+  { id:'med_002', name:'Paracetamol 500mg',         category:'Fever',        type:'Tablet',  price:50,  stock:500, description:'Analgesic and antipyretic for pain and fever relief.' },
+  { id:'med_003', name:'Ibuprofen 400mg',           category:'Pain',         type:'Tablet',  price:80,  stock:350, description:'NSAID for pain, fever and inflammation.' },
+  { id:'med_004', name:'Lisinopril 10mg',           category:'Hypertension', type:'Tablet',  price:200, stock:120, description:'ACE inhibitor for high blood pressure and heart failure.' },
+  { id:'med_005', name:'Metformin 850mg',           category:'Diabetes',     type:'Tablet',  price:120, stock:180, description:'First-line medication for type 2 diabetes.' },
+  { id:'med_006', name:'Atorvastatin 20mg',         category:'Hypertension', type:'Tablet',  price:180, stock:90,  description:'Statin to lower cholesterol and reduce cardiovascular risk.' },
+  { id:'med_007', name:'Cetirizine 10mg',           category:'Allergy',      type:'Tablet',  price:60,  stock:250, description:'Antihistamine for allergy relief including hay fever.' },
+  { id:'med_008', name:'Salbutamol 100mcg Inhaler', category:'Asthma',       type:'Inhaler', price:850, stock:45,  description:'Bronchodilator for relief of bronchospasm in asthma and COPD.' },
+  { id:'med_009', name:'Augmentin 625mg',           category:'Infection',    type:'Tablet',  price:350, stock:80,  description:'Amoxicillin + clavulanate for resistant infections.' },
+  { id:'med_010', name:'Vitamin C 500mg',           category:'Supplement',   type:'Tablet',  price:60,  stock:400, description:'Ascorbic acid supplement to support immune function.' },
+  { id:'med_011', name:'Prednisolone 5mg',          category:'Inflammation', type:'Tablet',  price:90,  stock:15,  description:'Corticosteroid for inflammatory and immune conditions.' },
+  { id:'med_012', name:'Omeprazole 20mg',           category:'Gastro',       type:'Capsule', price:130, stock:220, description:'Proton pump inhibitor for acid reflux and ulcers.' },
+  { id:'med_013', name:'Amoxicillin/Clavulanate',   category:'Infection',    type:'Tablet',  price:320, stock:65,  description:'Combination antibiotic for resistant bacterial infections.' },
+  { id:'med_014', name:'Fluconazole 150mg',         category:'Infection',    type:'Capsule', price:280, stock:40,  description:'Antifungal for candidiasis and other fungal infections.' },
+  { id:'med_015', name:'Azithromycin 500mg',        category:'Infection',    type:'Tablet',  price:450, stock:70,  description:'Macrolide antibiotic; take once daily for 3 days.' },
 ];
 
 const MONTHLY_EARNINGS = [
-  { month:'October 2025', orders:48, revenue:'₦72,400' },
+  { month:'October 2025',  orders:48, revenue:'₦72,400' },
   { month:'November 2025', orders:55, revenue:'₦83,150' },
   { month:'December 2025', orders:70, revenue:'₦105,000' },
-  { month:'January 2026', orders:62, revenue:'₦93,600' },
+  { month:'January 2026',  orders:62, revenue:'₦93,600' },
   { month:'February 2026', orders:58, revenue:'₦87,200' },
-  { month:'March 2026', orders:21, revenue:'₦31,500' }
+  { month:'March 2026 (partial)', orders:21, revenue:'₦31,500' }
 ];
+/* END OF LOCAL DEMO DATA */
 
 /* ═══════════════════════════════════════════════════════════
    APP STATE
@@ -639,7 +665,7 @@ function sendOtp() {
   const email = document.getElementById('login-email').value.trim();
   const phone = document.getElementById('login-phone').value.trim();
   let ok = true;
-  if (!email || !email.toLowerCase().endsWith('@gmail.com')) {
+  if (!email || !email.includes('@') || !email.includes('.')) {
     document.getElementById('email-err').style.display = 'block'; ok = false;
   } else { document.getElementById('email-err').style.display = 'none'; }
   if (!phone) {
@@ -653,7 +679,7 @@ function sendOtp() {
     appState.pendingPhone = phone;
     document.getElementById('otp-email-display').textContent = email;
     document.getElementById('send-otp-btn').disabled = false;
-    document.getElementById('send-otp-btn').innerHTML = 'Continue <i class="fa-solid fa-arrow-right" style="margin-left:8px;"></i>';
+    document.getElementById('send-otp-btn').innerHTML = 'Continue →';
     showScreen('screen-otp');
     document.getElementById('otp-1').focus();
   }, 700);
@@ -702,7 +728,11 @@ function completeOnboarding() {
   const age = document.getElementById('ob-age').value.trim();
   if (!name) { showToast('Please enter your name'); return; }
   if (!shop) { showToast('Please enter your pharmacy name/address'); return; }
-  appState.profile = { name, shop, age, gender: appState.selectedGender||'Other' };
+  // Include auth credentials so they survive a page reload
+  appState.profile = {
+    name, shop, age, gender: appState.selectedGender||'Other',
+    _email: appState.user?.email || '', _phone: appState.user?.phone || ''
+  };
   localStorage.setItem('mediflow_phar_user', JSON.stringify(appState.profile));
   launchApp();
 }
@@ -908,8 +938,8 @@ function renderMedCards() {
           <span class="med-stock ${stockClass}">${stockLabel}</span>
         </div>
         <div class="med-actions">
-          <button class="btn-sm btn-ghost" onclick="openEditMed('${m.id}')"><i class="fa-solid fa-pen" style="margin-right:5px;font-size:10px;"></i>Edit</button>
-          <button class="btn-sm btn-red" onclick="deleteMed('${m.id}')"><i class="fa-solid fa-trash" style="margin-right:5px;font-size:10px;"></i>Delete</button>
+          <button class="btn-sm btn-ghost" onclick="openEditMed('${m.id}')">✏️ Edit</button>
+          <button class="btn-sm btn-red" onclick="deleteMed('${m.id}')">🗑️ Delete</button>
         </div>
       </div>
     </div>`;
@@ -1027,17 +1057,18 @@ function renderProfilePanels() {
       </tr>`).join('')}</tbody>
     </table>`;
 
-  // Earnings panel
-  const totalRev = MONTHLY_EARNINGS.reduce((s,r)=>s+(parseInt(r.revenue.replace(/[^0-9]/g,''))||0), 0);
+  // Earnings panel — use calculated total from MONTHLY_EARNINGS
+  const totalRevNum = MONTHLY_EARNINGS.reduce((s,r)=>s+(parseInt(r.revenue.replace(/[^0-9]/g,''))||0), 0);
+  const totalRevFmt = '₦'+totalRevNum.toLocaleString();
   document.getElementById('pt-earn').innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
       <div style="background:linear-gradient(135deg,var(--c1),#fff);border-radius:18px;padding:14px;text-align:center;border:1px solid var(--c2);">
-        <div style="font-size:17px;font-weight:800;color:var(--c4);">₦473,950</div>
+        <div style="font-size:17px;font-weight:800;color:var(--c4);">${totalRevFmt}</div>
         <div style="font-size:10px;color:var(--gray-text);font-weight:700;">Total Revenue</div>
       </div>
       <div style="background:white;border-radius:18px;padding:14px;text-align:center;border:1px solid #F3F4F6;">
         <div style="font-size:17px;font-weight:800;color:#059669;">₦31,500</div>
-        <div style="font-size:10px;color:var(--gray-text);font-weight:700;">This Month</div>
+        <div style="font-size:10px;color:var(--gray-text);font-weight:700;">This Month (so far)</div>
       </div>
       <div style="background:white;border-radius:18px;padding:14px;text-align:center;border:1px solid #F3F4F6;">
         <div style="font-size:17px;font-weight:800;color:#D97706;">₦1,375</div>
@@ -1069,12 +1100,14 @@ window.addEventListener('load', () => {
     const loader = document.getElementById('pill-loader');
     loader.style.opacity = '0';
     setTimeout(() => { loader.style.display = 'none'; }, 400);
-    // Auto-login if profile stored
+    // Auto-login if profile stored — restore credentials saved at login time
     const stored = localStorage.getItem('mediflow_phar_user');
     if (stored) {
       try {
-        appState.profile = JSON.parse(stored);
-        appState.user = { phone: '+2340000000000', email: 'demo@gmail.com' };
+        const saved = JSON.parse(stored);
+        appState.profile = saved;
+        // Restore the email/phone that were saved alongside the profile at login
+        appState.user = { phone: saved._phone || '—', email: saved._email || '' };
         launchApp();
       } catch { showScreen('screen-login'); }
     } else {
