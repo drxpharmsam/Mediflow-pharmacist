@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>MediFlow — Pharmacist Portal</title>
+  <meta name="description" content="MediFlow Pharmacist: Manage orders, prescriptions, and inventory all in one place.">
+  <meta name="theme-color" content="#0A858C">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --c1: #E0F7F6;
+      --c2: #A5E6E2;
+      --c3: #36B8B7;
+      --c4: #0A858C;
+      --c5: #055C61;
+      --error: #FF5E5E;
+      --error-bg: #FFF0F0;
+      --success: #00D09C;
+      --success-bg: #E6FDF7;
+      --white: #FFFFFF;
+      --gray-text: #6B7280;
+      --bg-color: #F3F4F6;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Plus Jakarta Sans', sans-serif; }
+    ::-webkit-scrollbar { width: 0; height: 0; background: transparent; }
+    body, html { margin: 0; padding: 0; height: 100%; width: 100%; background-color: #E5E7EB; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+    #app-frame { width: 100%; height: 100%; background: #F9FAFB; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+    @media (min-width: 768px) {
+      #app-frame { width: 400px; height: 850px; border-radius: 45px; box-shadow: 0 40px 100px rgba(5,92,97,0.15); border: 10px solid #111827; }
+    }
+
+    /* ── Pill Loader ── */
+    #pill-loader { position: absolute; inset: 0; background: linear-gradient(135deg, var(--c5), var(--c4)); z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column; color: white; transition: opacity 0.4s ease; }
+    .pill-icon { font-size: 55px; color: var(--c1); filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2)); animation: bouncePill 1.2s cubic-bezier(0.68,-0.55,0.265,1.55) infinite; }
+    @keyframes bouncePill { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-28px) rotate(180deg); } }
+
+    /* ── Toast ── */
+    #toast { position: absolute; bottom: 110px; left: 50%; transform: translateX(-50%) translateY(20px); background: #1F2937; color: white; padding: 12px 22px; border-radius: 16px; font-size: 13px; font-weight: 700; z-index: 9998; opacity: 0; pointer-events: none; transition: all 0.3s ease; white-space: nowrap; }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── Screens ── */
+    .screen { position: absolute; inset: 0; transition: all 0.4s cubic-bezier(0.16,1,0.3,1); display: flex; flex-direction: column; z-index: 10; background: #F9FAFB; }
+    .hidden { opacity: 0; pointer-events: none; transform: scale(0.98) translateY(20px); }
+    .content-view { padding: 0 20px; display: none; animation: slideUp 0.4s cubic-bezier(0.16,1,0.3,1) forwards; opacity: 0; }
+    .content-view.active-view { display: block; }
+    @keyframes slideUp { from { opacity:0; transform: translateY(15px); } to { opacity:1; transform: translateY(0); } }
+
+    /* ── Auth Screens ── */
+    .auth-bg { background: linear-gradient(180deg, var(--c2) 0%, var(--c1) 100%); padding: 60px 30px; z-index: 200; }
+    .glass-sheet { position: absolute; bottom: 0; left: 0; right: 0; top: 22%; background: rgba(255,255,255,0.88); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border-top-left-radius: 40px; border-top-right-radius: 40px; padding: 40px 30px; box-shadow: 0 -15px 40px rgba(0,0,0,0.06); border-top: 1px solid rgba(255,255,255,0.8); overflow-y: auto; }
+    .input-group { margin-bottom: 22px; }
+    .input-group label { display: block; font-size: 11px; font-weight: 800; color: var(--gray-text); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .input-group input { width: 100%; height: 58px; background: white; border: 1.5px solid #E5E7EB; border-radius: 18px; padding: 0 22px; font-size: 16px; font-weight: 600; outline: none; transition: all 0.3s ease; color: #1F2937; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+    .input-group input:focus { border-color: var(--c3); box-shadow: 0 0 0 4px rgba(54,184,183,0.15); transform: translateY(-2px); }
+    .error-hint { color: var(--error); font-size: 11px; font-weight: 700; margin-top: 6px; display: none; }
+
+    /* ── OTP Boxes ── */
+    .otp-row { display: flex; justify-content: space-between; margin: 28px 0; gap: 8px; }
+    .otp-box { flex: 1; height: 58px; border: 1.5px solid #E5E7EB; border-radius: 16px; text-align: center; font-size: 24px; font-weight: 800; background: white; color: #111827; outline: none; transition: all 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+    .otp-box:focus { border-color: var(--c3); box-shadow: 0 0 0 4px rgba(54,184,183,0.15); }
+
+    /* ── Buttons ── */
+    .btn-primary { width: 100%; height: 58px; background: linear-gradient(135deg, var(--c4), var(--c3)); border: none; border-radius: 18px; color: white; font-size: 16px; font-weight: 800; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 8px 20px rgba(10,133,140,0.3); letter-spacing: 0.3px; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(10,133,140,0.4); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .btn-outline { background: transparent; border: 1.5px solid var(--c3); border-radius: 14px; color: var(--c4); font-size: 13px; font-weight: 700; padding: 10px 20px; cursor: pointer; transition: all 0.2s; }
+    .btn-outline:hover { background: var(--c1); }
+    .btn-sm { padding: 8px 16px; border-radius: 12px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; border: none; }
+    .btn-teal { background: linear-gradient(135deg, var(--c4), var(--c3)); color: white; }
+    .btn-red { background: #FEE2E2; color: #DC2626; }
+    .btn-ghost { background: var(--bg-color); color: #374151; }
+
+    /* ── Main Screen ── */
+    #screen-main { overflow: hidden; }
+    .header-aura { position: absolute; top: 0; left: 0; right: 0; height: 165px; background: linear-gradient(135deg, var(--c5) 0%, var(--c4) 100%); border-bottom-left-radius: 40px; border-bottom-right-radius: 40px; padding: 50px 25px 0; color: white; z-index: 50; box-shadow: 0 15px 30px rgba(5,92,97,0.22); }
+    .header-top { display: flex; align-items: center; justify-content: space-between; }
+    .header-greeting { font-size: 13px; font-weight: 600; opacity: 0.8; margin-bottom: 3px; }
+    .header-name { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
+    .header-avatar { width: 42px; height: 42px; border-radius: 50%; background: rgba(255,255,255,0.25); border: 2px solid rgba(255,255,255,0.6); display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 800; color: white; cursor: pointer; flex-shrink: 0; }
+
+    /* ── Scrollable Content ── */
+    .main-scroll { position: absolute; top: 165px; bottom: 90px; left: 0; right: 0; overflow-y: auto; }
+    .tab-pane { padding: 20px 20px 10px; display: none; }
+    .tab-pane.active { display: block; }
+
+    /* ── Nav Dock ── */
+    .nav-dock { position: absolute; bottom: 0; left: 0; width: 100%; height: 90px; background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top-left-radius: 35px; border-top-right-radius: 35px; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -10px 40px rgba(0,0,0,0.07); z-index: 100; border-top: 1px solid rgba(255,255,255,0.8); padding-bottom: 10px; }
+    .nav-item { color: #9CA3AF; font-size: 20px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4,0,0.2,1); position: relative; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 20px; flex-direction: column; gap: 3px; }
+    .nav-item .nav-label { font-size: 10px; font-weight: 700; line-height: 1; }
+    .nav-item.active { background: linear-gradient(135deg, var(--c1), white); color: var(--c4); transform: translateY(-12px); box-shadow: 0 15px 25px rgba(54,184,183,0.22); border: 1px solid var(--c2); }
+
+    /* ── Section Header ── */
+    .section-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .section-title { font-size: 18px; font-weight: 800; color: #111827; }
+    .section-count { background: var(--c1); color: var(--c4); border-radius: 10px; padding: 4px 10px; font-size: 12px; font-weight: 800; }
+
+    /* ── Stat Cards ── */
+    .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    .stat-card { background: white; border-radius: 22px; padding: 18px 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.04); border: 1.5px solid #F3F4F6; }
+    .stat-icon { width: 42px; height: 42px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 12px; }
+    .stat-val { font-size: 24px; font-weight: 800; color: #111827; margin-bottom: 4px; }
+    .stat-lbl { font-size: 12px; color: var(--gray-text); font-weight: 600; }
+
+    /* ── Order Cards ── */
+    .order-card { background: white; border-radius: 20px; padding: 16px; margin-bottom: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.04); border: 1.5px solid #F3F4F6; cursor: pointer; transition: all 0.2s ease; }
+    .order-card:active { transform: scale(0.98); }
+    .order-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .order-patient { font-size: 15px; font-weight: 700; color: #111827; }
+    .order-phone { font-size: 12px; color: var(--gray-text); font-weight: 500; margin-top: 2px; }
+    .order-id { font-size: 11px; color: var(--gray-text); font-weight: 600; }
+    .order-meds { font-size: 12px; color: #374151; font-weight: 600; margin-top: 6px; }
+    .order-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 1px solid #F3F4F6; }
+    .order-amount { font-size: 16px; font-weight: 800; color: var(--c4); }
+    .order-date { font-size: 11px; color: var(--gray-text); }
+
+    /* ── Status Badges ── */
+    .badge { font-size: 10px; font-weight: 800; padding: 5px 10px; border-radius: 10px; text-transform: uppercase; letter-spacing: 0.3px; display: inline-block; }
+    .badge-pending { background: #FEF3C7; color: #D97706; }
+    .badge-processing { background: #DBEAFE; color: #2563EB; }
+    .badge-ready { background: var(--success-bg); color: #059669; }
+    .badge-delivered { background: #F0FDF4; color: #16A34A; border: 1px solid #BBF7D0; }
+    .badge-cancelled { background: var(--error-bg); color: var(--error); }
+    .badge-filled { background: var(--success-bg); color: #059669; }
+    .badge-rx { background: #F3E8FF; color: #7C3AED; }
+
+    /* ── Medicine Cards ── */
+    .med-card { background: white; border-radius: 20px; padding: 16px; margin-bottom: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.04); border: 1.5px solid #F3F4F6; display: flex; gap: 14px; align-items: flex-start; }
+    .med-icon { width: 52px; height: 52px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+    .med-body { flex: 1; min-width: 0; }
+    .med-name { font-size: 14px; font-weight: 700; color: #111827; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .med-meta { font-size: 12px; color: var(--gray-text); font-weight: 500; margin-top: 3px; }
+    .med-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+    .med-price { font-size: 16px; font-weight: 800; color: var(--c4); }
+    .med-stock { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 10px; }
+    .stock-ok { background: var(--success-bg); color: #059669; }
+    .stock-low { background: #FEF3C7; color: #D97706; }
+    .stock-out { background: var(--error-bg); color: var(--error); }
+    .med-actions { display: flex; gap: 8px; margin-top: 10px; }
+
+    /* ── Search Bar ── */
+    .search-wrap { position: relative; margin-bottom: 16px; }
+    .search-wrap i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--gray-text); font-size: 15px; }
+    .search-input { width: 100%; height: 50px; background: white; border: 1.5px solid #E5E7EB; border-radius: 16px; padding: 0 18px 0 44px; font-size: 14px; font-weight: 600; outline: none; color: #1F2937; transition: all 0.2s; }
+    .search-input:focus { border-color: var(--c3); box-shadow: 0 0 0 3px rgba(54,184,183,0.12); }
+
+    /* ── Drawer / Modal ── */
+    .drawer-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); z-index: 500; display: none; }
+    .drawer-overlay.open { display: block; }
+    .drawer { position: absolute; bottom: 0; left: 0; right: 0; background: white; border-top-left-radius: 30px; border-top-right-radius: 30px; padding: 0 0 30px; max-height: 82%; overflow-y: auto; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.16,1,0.3,1); z-index: 600; }
+    .drawer.open { transform: translateY(0); }
+    .drawer-handle { width: 40px; height: 4px; background: #E5E7EB; border-radius: 4px; margin: 14px auto 0; }
+    .drawer-header { padding: 18px 24px 14px; border-bottom: 1px solid #F3F4F6; }
+    .drawer-title { font-size: 18px; font-weight: 800; color: #111827; }
+    .drawer-body { padding: 20px 24px; }
+    .detail-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #F3F4F6; }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { font-size: 12px; color: var(--gray-text); font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
+    .detail-value { font-size: 14px; font-weight: 700; color: #111827; text-align: right; max-width: 65%; }
+
+    /* ── Select Status ── */
+    .status-select { width: 100%; height: 52px; background: white; border: 1.5px solid #E5E7EB; border-radius: 16px; padding: 0 18px; font-size: 14px; font-weight: 600; outline: none; color: #1F2937; margin-bottom: 14px; transition: all 0.2s; }
+    .status-select:focus { border-color: var(--c3); }
+
+    /* ── Category Pills ── */
+    .cat-pills { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 12px; }
+    .cat-pill { padding: 8px 16px; border-radius: 50px; font-size: 12px; font-weight: 700; white-space: nowrap; cursor: pointer; border: 1.5px solid #E5E7EB; background: white; color: var(--gray-text); transition: all 0.2s; }
+    .cat-pill.active { background: linear-gradient(135deg, var(--c4), var(--c3)); color: white; border-color: transparent; }
+
+    /* ── Profile Tab ── */
+    .profile-hero { background: linear-gradient(135deg, var(--c5), var(--c4)); border-radius: 24px; padding: 24px; margin-bottom: 16px; color: white; display: flex; gap: 16px; align-items: center; }
+    .profile-av { width: 68px; height: 68px; border-radius: 50%; background: rgba(255,255,255,0.25); border: 3px solid rgba(255,255,255,0.5); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 800; flex-shrink: 0; }
+    .profile-name { font-size: 20px; font-weight: 800; }
+    .profile-sub { font-size: 12px; opacity: 0.8; margin-top: 4px; font-weight: 600; }
+
+    /* ── Earnings table ── */
+    .earn-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .earn-table th { text-align: left; padding: 10px 12px; font-size: 11px; font-weight: 800; color: var(--gray-text); text-transform: uppercase; letter-spacing: 0.4px; background: var(--bg-color); }
+    .earn-table td { padding: 12px; border-bottom: 1px solid #F3F4F6; font-weight: 600; }
+    .earn-table tr:last-child td { border-bottom: none; }
+
+    /* ── Tab Switcher (profile) ── */
+    .ptab-row { display: flex; background: var(--bg-color); border-radius: 16px; padding: 4px; margin-bottom: 16px; gap: 4px; }
+    .ptab { flex: 1; padding: 10px 6px; border-radius: 12px; font-size: 12px; font-weight: 700; text-align: center; cursor: pointer; color: var(--gray-text); transition: all 0.2s; border: none; background: transparent; }
+    .ptab.active { background: white; color: var(--c4); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+
+    /* ── Rx card ── */
+    .rx-card { background: white; border-radius: 20px; padding: 16px; margin-bottom: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.04); border: 1.5px solid #F3F4F6; }
+    .rx-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .rx-id { font-size: 13px; font-weight: 800; color: var(--c4); }
+    .rx-patient { font-size: 15px; font-weight: 700; color: #111827; margin-top: 6px; }
+    .rx-med { font-size: 12px; color: var(--gray-text); font-weight: 600; margin-top: 4px; }
+    .rx-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 1px solid #F3F4F6; }
+
+    /* ── Add Medicine Form ── */
+    .form-input { width: 100%; height: 52px; background: white; border: 1.5px solid #E5E7EB; border-radius: 16px; padding: 0 18px; font-size: 14px; font-weight: 600; outline: none; color: #1F2937; transition: all 0.2s; margin-bottom: 14px; }
+    .form-input:focus { border-color: var(--c3); box-shadow: 0 0 0 3px rgba(54,184,183,0.12); }
+    .form-label { font-size: 11px; font-weight: 800; color: var(--gray-text); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 8px; display: block; }
+    .form-row { display: flex; gap: 12px; }
+    .form-row .form-group { flex: 1; }
+    .form-group { margin-bottom: 4px; }
+
+    /* ── Floating Add Button ── */
+    .fab { position: absolute; bottom: 110px; right: 22px; width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, var(--c4), var(--c3)); color: white; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 8px 20px rgba(10,133,140,0.35); z-index: 200; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .fab:hover { transform: scale(1.08); }
+    .fab:active { transform: scale(0.96); }
+
+    /* ── Gender chips for onboarding ── */
+    .gender-row { display: flex; gap: 12px; margin-bottom: 14px; }
+    .gender-chip { flex: 1; padding: 16px; border-radius: 18px; background: white; border: 1.5px solid #E5E7EB; text-align: center; font-size: 14px; font-weight: 700; color: var(--gray-text); cursor: pointer; transition: all 0.2s; }
+    .gender-chip.selected { background: linear-gradient(135deg, var(--c1), #fff); border-color: var(--c3); color: var(--c5); transform: translateY(-3px); box-shadow: 0 8px 15px rgba(54,184,183,0.15); }
+
+    /* ── Test mode chip ── */
+    .test-chip { display: inline-flex; align-items: center; gap: 6px; background: #FEF3C7; color: #D97706; border-radius: 50px; padding: 6px 14px; font-size: 12px; font-weight: 800; margin-bottom: 18px; }
+  </style>
+</head>
+<body>
+<div id="app-frame">
+
+  <!-- ═══ PILL LOADER ═══ -->
+  <div id="pill-loader">
+    <i class="fa-solid fa-pills pill-icon"></i>
+    <p style="margin-top:20px; letter-spacing:3px; font-size:13px; font-weight:800;">LOADING</p>
+  </div>
+
+  <!-- ═══ TOAST ═══ -->
+  <div id="toast"></div>
+
+  <!-- ═══════════════════════════════════════════
+       SCREEN: LOGIN
+  ════════════════════════════════════════════ -->
+  <div id="screen-login" class="screen auth-bg hidden">
+    <h1 style="color:var(--c5);font-size:40px;margin:0;letter-spacing:-1.5px;font-weight:800;">MediFlow</h1>
+    <p style="color:var(--c5);font-weight:700;opacity:0.8;margin-top:5px;font-size:15px;">Pharmacist Portal 💊</p>
+    <div class="glass-sheet">
+      <h2 style="font-size:26px;color:#111827;margin-top:0;margin-bottom:6px;">Welcome Back</h2>
+      <p style="font-size:13px;color:var(--gray-text);font-weight:600;margin-bottom:22px;">Sign in to manage your pharmacy</p>
+      <div class="test-chip"><i class="fa-solid fa-flask"></i> TEST MODE — OTP: 123456</div>
+      <div class="input-group">
+        <label>Gmail Address</label>
+        <input type="email" id="login-email" placeholder="name@gmail.com" autocomplete="email">
+        <div id="email-err" class="error-hint">Please enter a valid Gmail address</div>
+      </div>
+      <div class="input-group">
+        <label>Phone Number</label>
+        <input type="tel" id="login-phone" placeholder="+234 800 000 0000">
+        <div id="phone-err" class="error-hint">Please enter your phone number</div>
+      </div>
+      <button class="btn-primary" id="send-otp-btn" onclick="sendOtp()">Continue <i class="fa-solid fa-arrow-right" style="margin-left:8px;"></i></button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SCREEN: OTP VERIFY
+  ════════════════════════════════════════════ -->
+  <div id="screen-otp" class="screen auth-bg hidden">
+    <h1 style="color:var(--c5);font-size:40px;margin:0;font-weight:800;">Verify</h1>
+    <p style="color:var(--c5);font-weight:700;opacity:0.8;margin-top:5px;">OTP sent to your email & phone.</p>
+    <div class="glass-sheet">
+      <h2 style="font-size:26px;color:#111827;margin-top:0;margin-bottom:6px;">Enter OTP Code</h2>
+      <p id="otp-hint" style="font-size:13px;color:var(--gray-text);font-weight:600;margin-bottom:4px;">Code sent to <span id="otp-email-display" style="color:var(--c4);font-weight:800;"></span></p>
+      <div class="test-chip" style="margin-top:12px;"><i class="fa-solid fa-flask"></i> Use <strong style="margin:0 4px;">123456</strong> in test mode</div>
+      <div class="otp-row">
+        <input type="tel" class="otp-box" id="otp-1" maxlength="1" inputmode="numeric" oninput="otpNext(this,1)">
+        <input type="tel" class="otp-box" id="otp-2" maxlength="1" inputmode="numeric" oninput="otpNext(this,2)">
+        <input type="tel" class="otp-box" id="otp-3" maxlength="1" inputmode="numeric" oninput="otpNext(this,3)">
+        <input type="tel" class="otp-box" id="otp-4" maxlength="1" inputmode="numeric" oninput="otpNext(this,4)">
+        <input type="tel" class="otp-box" id="otp-5" maxlength="1" inputmode="numeric" oninput="otpNext(this,5)">
+        <input type="tel" class="otp-box" id="otp-6" maxlength="1" inputmode="numeric" oninput="otpNext(this,6)">
+      </div>
+      <div id="otp-err" class="error-hint" style="text-align:center;margin-bottom:14px;">Incorrect OTP. Use 123456 in test mode.</div>
+      <button class="btn-primary" id="verify-btn" onclick="verifyOtp()" disabled>Verify &amp; Continue</button>
+      <button onclick="showScreen('screen-login')" style="background:none;border:none;color:var(--gray-text);font-size:13px;font-weight:600;cursor:pointer;margin-top:14px;width:100%;text-align:center;">← Back</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SCREEN: ONBOARDING
+  ════════════════════════════════════════════ -->
+  <div id="screen-onboarding" class="screen auth-bg hidden">
+    <h1 style="color:var(--c5);font-size:40px;margin:0;font-weight:800;">Set Up</h1>
+    <p style="color:var(--c5);font-weight:700;opacity:0.8;margin-top:5px;">Profile &amp; pharmacy info</p>
+    <div class="glass-sheet" style="top:18%;padding:30px;">
+      <h2 style="font-size:22px;color:#111827;margin-top:0;margin-bottom:18px;">Your Details</h2>
+      <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" type="text" id="ob-name" placeholder="Dr. Samuel Okonkwo"></div>
+      <div class="form-group"><label class="form-label">Gender</label>
+        <div class="gender-row">
+          <div class="gender-chip" onclick="selectGender('Male',this)">👨 Male</div>
+          <div class="gender-chip" onclick="selectGender('Female',this)">👩 Female</div>
+          <div class="gender-chip" onclick="selectGender('Other',this)">🧑 Other</div>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Pharmacy / Shop Name</label><input class="form-input" type="text" id="ob-shop" placeholder="MediFlow Pharmacy, Victoria Island"></div>
+      <div class="form-group" style="margin-bottom:22px;"><label class="form-label">Age</label><input class="form-input" type="number" id="ob-age" placeholder="e.g. 35" min="18" max="99"></div>
+      <button class="btn-primary" onclick="completeOnboarding()">Get Started <i class="fa-solid fa-check" style="margin-left:8px;"></i></button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SCREEN: MAIN APP
+  ════════════════════════════════════════════ -->
+  <div id="screen-main" class="screen hidden">
+
+    <!-- Header -->
+    <div class="header-aura">
+      <div class="header-top">
+        <div>
+          <div class="header-greeting" id="hd-greeting">Good morning 👋</div>
+          <div class="header-name" id="hd-name">Pharmacist</div>
+        </div>
+        <div class="header-avatar" id="hd-avatar" onclick="switchTab('tab-profile','nav-profile')">P</div>
+      </div>
+    </div>
+
+    <!-- Scrollable tab content -->
+    <div class="main-scroll">
+
+      <!-- ── ORDERS TAB ── -->
+      <div class="tab-pane active" id="tab-orders">
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#FEF3C7;color:#D97706;"><i class="fa-solid fa-clock"></i></div>
+            <div class="stat-val" id="stat-pending">0</div>
+            <div class="stat-lbl">Pending Orders</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:var(--success-bg);color:#059669;"><i class="fa-solid fa-truck"></i></div>
+            <div class="stat-val" id="stat-delivered">0</div>
+            <div class="stat-lbl">Delivered Today</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#DBEAFE;color:#2563EB;"><i class="fa-solid fa-spinner"></i></div>
+            <div class="stat-val" id="stat-processing">0</div>
+            <div class="stat-lbl">Processing</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:var(--c1);color:var(--c4);"><i class="fa-solid fa-naira-sign"></i></div>
+            <div class="stat-val" id="stat-revenue">₦0</div>
+            <div class="stat-lbl">Today's Revenue</div>
+          </div>
+        </div>
+        <div class="section-hd">
+          <span class="section-title">All Orders</span>
+          <span class="section-count" id="orders-count-badge">0</span>
+        </div>
+        <div id="orders-list"></div>
+      </div>
+
+      <!-- ── PRESCRIPTIONS TAB ── -->
+      <div class="tab-pane" id="tab-prescriptions">
+        <div class="section-hd">
+          <span class="section-title">Prescriptions</span>
+          <span class="section-count" id="rx-count-badge">0</span>
+        </div>
+        <div id="rx-list"></div>
+      </div>
+
+      <!-- ── INVENTORY TAB ── -->
+      <div class="tab-pane" id="tab-inventory">
+        <div class="search-wrap">
+          <i class="fa-solid fa-search"></i>
+          <input class="search-input" type="text" id="inv-search" placeholder="Search medicines…" oninput="filterInventory()">
+        </div>
+        <div class="cat-pills" id="cat-pills-row"></div>
+        <div class="section-hd">
+          <span class="section-title">Medicines</span>
+          <span class="section-count" id="med-count-badge">0</span>
+        </div>
+        <div id="med-list"></div>
+      </div>
+
+      <!-- ── PROFILE TAB ── -->
+      <div class="tab-pane" id="tab-profile">
+        <div class="profile-hero">
+          <div class="profile-av" id="prof-avatar">P</div>
+          <div>
+            <div class="profile-name" id="prof-name">Pharmacist</div>
+            <div class="profile-sub" id="prof-shop">📍 Shop Address</div>
+            <div class="profile-sub" id="prof-phone">📞 —</div>
+          </div>
+        </div>
+        <div class="stats-row">
+          <div class="stat-card" style="grid-column:span 2;">
+            <div style="display:flex;gap:16px;">
+              <div style="flex:1;text-align:center;">
+                <div style="font-size:22px;font-weight:800;color:var(--c4);" id="ps-filled">0</div>
+                <div style="font-size:11px;color:var(--gray-text);font-weight:600;">Rx Filled</div>
+              </div>
+              <div style="flex:1;text-align:center;border-left:1px solid #F3F4F6;">
+                <div style="font-size:22px;font-weight:800;color:#D97706;" id="ps-pending">0</div>
+                <div style="font-size:11px;color:var(--gray-text);font-weight:600;">Pending</div>
+              </div>
+              <div style="flex:1;text-align:center;border-left:1px solid #F3F4F6;">
+                <div style="font-size:22px;font-weight:800;color:#2563EB;" id="ps-orders">0</div>
+                <div style="font-size:11px;color:var(--gray-text);font-weight:600;">Orders</div>
+              </div>
+              <div style="flex:1;text-align:center;border-left:1px solid #F3F4F6;">
+                <div style="font-size:22px;font-weight:800;color:#059669;" id="ps-rev">₦0</div>
+                <div style="font-size:11px;color:var(--gray-text);font-weight:600;">Revenue</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ptab-row">
+          <button class="ptab active" onclick="switchPtab('pt-rx',this)">Prescriptions</button>
+          <button class="ptab" onclick="switchPtab('pt-orders',this)">Orders</button>
+          <button class="ptab" onclick="switchPtab('pt-earn',this)">Earnings</button>
+        </div>
+        <div id="pt-rx" class="ptab-panel"></div>
+        <div id="pt-orders" class="ptab-panel" style="display:none;"></div>
+        <div id="pt-earn" class="ptab-panel" style="display:none;"></div>
+        <button onclick="handleLogout()" style="width:100%;margin-top:20px;padding:16px;background:var(--error-bg);border:none;border-radius:18px;color:var(--error);font-size:14px;font-weight:800;cursor:pointer;"><i class="fa-solid fa-right-from-bracket" style="margin-right:8px;"></i>Logout</button>
+      </div>
+
+    </div><!-- /main-scroll -->
+
+    <!-- Add Medicine FAB (visible only in inventory tab) -->
+    <button class="fab" id="fab-add" onclick="openAddMed()" style="display:none;" aria-label="Add medicine"><i class="fa-solid fa-plus"></i></button>
+
+    <!-- Nav Dock -->
+    <div class="nav-dock">
+      <div class="nav-item active" id="nav-orders" onclick="switchTab('tab-orders','nav-orders')">
+        <i class="fa-solid fa-clipboard-list"></i>
+        <span class="nav-label">Orders</span>
+      </div>
+      <div class="nav-item" id="nav-prescriptions" onclick="switchTab('tab-prescriptions','nav-prescriptions')">
+        <i class="fa-solid fa-file-medical"></i>
+        <span class="nav-label">Rx</span>
+      </div>
+      <div class="nav-item" id="nav-inventory" onclick="switchTab('tab-inventory','nav-inventory')">
+        <i class="fa-solid fa-pills"></i>
+        <span class="nav-label">Inventory</span>
+      </div>
+      <div class="nav-item" id="nav-profile" onclick="switchTab('tab-profile','nav-profile')">
+        <i class="fa-solid fa-user"></i>
+        <span class="nav-label">Profile</span>
+      </div>
+    </div>
+  </div><!-- /screen-main -->
+
+  <!-- ═══════════════════════════════════════════
+       DRAWER: Order Detail
+  ════════════════════════════════════════════ -->
+  <div class="drawer-overlay" id="order-overlay" onclick="closeOrderDrawer()"></div>
+  <div class="drawer" id="order-drawer">
+    <div class="drawer-handle"></div>
+    <div class="drawer-header">
+      <div class="drawer-title">Order Details</div>
+    </div>
+    <div class="drawer-body" id="order-drawer-body"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       DRAWER: Add / Edit Medicine
+  ════════════════════════════════════════════ -->
+  <div class="drawer-overlay" id="med-overlay" onclick="closeMedDrawer()"></div>
+  <div class="drawer" id="med-drawer">
+    <div class="drawer-handle"></div>
+    <div class="drawer-header">
+      <div class="drawer-title" id="med-drawer-title">Add Medicine</div>
+    </div>
+    <div class="drawer-body">
+      <div id="med-form-err" class="error-hint" style="margin-bottom:12px;font-size:13px;"></div>
+      <div class="form-group"><label class="form-label">Name *</label><input class="form-input" type="text" id="mf-name" placeholder="e.g. Amoxicillin 500mg"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Category</label><input class="form-input" type="text" id="mf-category" placeholder="e.g. Infection"></div>
+        <div class="form-group"><label class="form-label">Type</label>
+          <select class="form-input" id="mf-type" style="padding:0 12px;">
+            <option value="">Select type</option>
+            <option>Tablet</option><option>Capsule</option><option>Syrup</option><option>Injection</option><option>Inhaler</option><option>Ointment</option><option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Price (₦) *</label><input class="form-input" type="number" id="mf-price" placeholder="0.00" min="0" step="0.01"></div>
+        <div class="form-group"><label class="form-label">Stock *</label><input class="form-input" type="number" id="mf-stock" placeholder="0" min="0"></div>
+      </div>
+      <div class="form-group" style="margin-bottom:22px;"><label class="form-label">Description</label><input class="form-input" type="text" id="mf-desc" placeholder="Optional short description"></div>
+      <button class="btn-primary" onclick="saveMedicine()" id="mf-save-btn">Add Medicine</button>
+    </div>
+  </div>
+
+</div><!-- /app-frame -->
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   LOCAL MOCK DATA
+═══════════════════════════════════════════════════════════ */
+const MOCK_ORDERS = [
+  {
+    id:'ord_001', patientName:'Alice Johnson', patientPhone:'+2348012345678',
+    status:'pending', hasPrescription:true,
+    medicines:[{name:'Amoxicillin 500mg',qty:20,price:150},{name:'Paracetamol 500mg',qty:10,price:50}],
+    totalAmount:3500, createdAt: new Date(Date.now()-2*60*60*1000).toISOString()
+  },
+  {
+    id:'ord_002', patientName:'Bob Smith', patientPhone:'+2348023456789',
+    status:'processing', hasPrescription:false,
+    medicines:[{name:'Lisinopril 10mg',qty:30,price:200}],
+    totalAmount:6000, createdAt: new Date(Date.now()-5*60*60*1000).toISOString()
+  },
+  {
+    id:'ord_003', patientName:'Carol White', patientPhone:'+2348034567890',
+    status:'ready', hasPrescription:true,
+    medicines:[{name:'Metformin 850mg',qty:60,price:120},{name:'Atorvastatin 20mg',qty:30,price:180}],
+    totalAmount:12600, createdAt: new Date(Date.now()-24*60*60*1000).toISOString()
+  },
+  {
+    id:'ord_004', patientName:'David Brown', patientPhone:'+2348045678901',
+    status:'delivered', hasPrescription:false,
+    medicines:[{name:'Ibuprofen 400mg',qty:15,price:80}],
+    totalAmount:1200, createdAt: new Date(Date.now()-48*60*60*1000).toISOString()
+  },
+  {
+    id:'ord_005', patientName:'Eve Davis', patientPhone:'+2348056789012',
+    status:'pending', hasPrescription:true,
+    medicines:[{name:'Augmentin 625mg',qty:14,price:350},{name:'Vitamin C 500mg',qty:30,price:60}],
+    totalAmount:6700, createdAt: new Date(Date.now()-1*60*60*1000).toISOString()
+  },
+  {
+    id:'ord_006', patientName:'Frank Obi', patientPhone:'+2348067890123',
+    status:'delivered', hasPrescription:false,
+    medicines:[{name:'Cetirizine 10mg',qty:20,price:60}],
+    totalAmount:1200, createdAt: new Date(Date.now()-6*60*60*1000).toISOString()
+  },
+  {
+    id:'ord_007', patientName:'Grace Nwosu', patientPhone:'+2348078901234',
+    status:'processing', hasPrescription:true,
+    medicines:[{name:'Salbutamol Inhaler',qty:1,price:850},{name:'Prednisolone 5mg',qty:20,price:90}],
+    totalAmount:2650, createdAt: new Date(Date.now()-3*60*60*1000).toISOString()
+  }
+];
+
+const MOCK_PRESCRIPTIONS = [
+  { id:'RX-001', patient:'Alice Johnson', patientPhone:'+2348012345678', medicine:'Amoxicillin 500mg', qty:20, date:'2026-02-28', status:'Filled', doctor:'Dr. Adeolu Bright', notes:'Take twice daily after meals' },
+  { id:'RX-002', patient:'Bob Smith', patientPhone:'+2348023456789', medicine:'Lisinopril 10mg', qty:30, date:'2026-03-01', status:'Pending', doctor:'Dr. Chisom Eze', notes:'Once daily in the morning' },
+  { id:'RX-003', patient:'Carol White', patientPhone:'+2348034567890', medicine:'Metformin 850mg', qty:60, date:'2026-03-02', status:'Filled', doctor:'Dr. Yusuf Bello', notes:'With meals, 3×/day' },
+  { id:'RX-004', patient:'David Brown', patientPhone:'+2348045678901', medicine:'Atorvastatin 20mg', qty:30, date:'2026-03-03', status:'Processing', doctor:'Dr. Adaeze Okafor', notes:'Once at bedtime' },
+  { id:'RX-005', patient:'Eve Davis', patientPhone:'+2348056789012', medicine:'Augmentin 625mg', qty:14, date:'2026-03-03', status:'Pending', doctor:'Dr. Adeolu Bright', notes:'Every 12 hours with food' },
+  { id:'RX-006', patient:'Grace Nwosu', patientPhone:'+2348078901234', medicine:'Salbutamol Inhaler', qty:1, date:'2026-03-03', status:'Processing', doctor:'Dr. Fatima Umar', notes:'As needed for breathlessness' }
+];
+
+let MOCK_MEDICINES = [
+  { id:'med_001', name:'Amoxicillin 500mg', category:'Infection', type:'Capsule', price:150, stock:200, description:'Broad-spectrum antibiotic for bacterial infections.' },
+  { id:'med_002', name:'Paracetamol 500mg', category:'Fever', type:'Tablet', price:50, stock:500, description:'Analgesic and antipyretic for pain and fever relief.' },
+  { id:'med_003', name:'Ibuprofen 400mg', category:'Pain', type:'Tablet', price:80, stock:350, description:'NSAID for pain, fever and inflammation.' },
+  { id:'med_004', name:'Lisinopril 10mg', category:'Hypertension', type:'Tablet', price:200, stock:120, description:'ACE inhibitor for high blood pressure and heart failure.' },
+  { id:'med_005', name:'Metformin 850mg', category:'Diabetes', type:'Tablet', price:120, stock:180, description:'First-line medication for type 2 diabetes.' },
+  { id:'med_006', name:'Atorvastatin 20mg', category:'Hypertension', type:'Tablet', price:180, stock:90, description:'Statin to lower cholesterol and reduce cardiovascular risk.' },
+  { id:'med_007', name:'Cetirizine 10mg', category:'Allergy', type:'Tablet', price:60, stock:250, description:'Antihistamine for allergy relief including hay fever.' },
+  { id:'med_008', name:'Salbutamol 100mcg Inhaler', category:'Asthma', type:'Inhaler', price:850, stock:45, description:'Bronchodilator for asthma and COPD.' },
+  { id:'med_009', name:'Augmentin 625mg', category:'Infection', type:'Tablet', price:350, stock:80, description:'Amoxicillin + clavulanate for resistant infections.' },
+  { id:'med_010', name:'Vitamin C 500mg', category:'Supplement', type:'Tablet', price:60, stock:400, description:'Ascorbic acid supplement to support immune function.' },
+  { id:'med_011', name:'Prednisolone 5mg', category:'Inflammation', type:'Tablet', price:90, stock:15, description:'Corticosteroid for inflammatory and immune conditions.' },
+  { id:'med_012', name:'Omeprazole 20mg', category:'Gastro', type:'Capsule', price:130, stock:220, description:'Proton pump inhibitor for acid reflux and ulcers.' }
+];
+
+const MONTHLY_EARNINGS = [
+  { month:'October 2025', orders:48, revenue:'₦72,400' },
+  { month:'November 2025', orders:55, revenue:'₦83,150' },
+  { month:'December 2025', orders:70, revenue:'₦105,000' },
+  { month:'January 2026', orders:62, revenue:'₦93,600' },
+  { month:'February 2026', orders:58, revenue:'₦87,200' },
+  { month:'March 2026', orders:21, revenue:'₦31,500' }
+];
+
+/* ═══════════════════════════════════════════════════════════
+   APP STATE
+═══════════════════════════════════════════════════════════ */
+let appState = {
+  user: null,
+  profile: null,
+  currentTab: 'tab-orders',
+  invFilter: 'All',
+  editMedId: null
+};
+
+/* ═══════════════════════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════════════════════ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  const s = document.getElementById(id);
+  if (s) { s.classList.remove('hidden'); }
+}
+
+function showToast(msg, duration=2800) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+function badge(status) {
+  const map = {
+    pending:'badge-pending', processing:'badge-processing', ready:'badge-ready',
+    delivered:'badge-delivered', cancelled:'badge-cancelled',
+    Filled:'badge-filled', Pending:'badge-pending', Processing:'badge-processing',
+    Cancelled:'badge-cancelled'
+  };
+  return `<span class="badge ${map[status]||'badge-pending'}">${status}</span>`;
+}
+
+function timeAgo(iso) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff/60000), h = Math.floor(m/60), d = Math.floor(h/24);
+  if (d > 0) return `${d}d ago`;
+  if (h > 0) return `${h}h ago`;
+  return `${m}m ago`;
+}
+
+function initials(name='') {
+  return name.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase() || 'P';
+}
+
+function greeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning 👋';
+  if (h < 17) return 'Good afternoon ☀️';
+  return 'Good evening 🌙';
+}
+
+function medIcon(cat) {
+  const m = { Infection:'💊', Fever:'🌡️', Pain:'💆', Hypertension:'❤️', Diabetes:'🩸', Allergy:'🌿', Asthma:'💨', Supplement:'🍊', Gastro:'🫃', Inflammation:'🔥' };
+  return m[cat] || '💊';
+}
+
+function medIconBg(cat) {
+  const m = { Infection:'#FEF3C7', Fever:'#FEE2E2', Pain:'#EDE9FE', Hypertension:'#FECACA', Diabetes:'#DBEAFE', Allergy:'#D1FAE5', Asthma:'#E0F2FE', Supplement:'#FEF9C3', Gastro:'#F0FDF4', Inflammation:'#FFF7ED' };
+  return m[cat] || '#F3F4F6';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   AUTH
+═══════════════════════════════════════════════════════════ */
+function sendOtp() {
+  const email = document.getElementById('login-email').value.trim();
+  const phone = document.getElementById('login-phone').value.trim();
+  let ok = true;
+  if (!email || !email.toLowerCase().endsWith('@gmail.com')) {
+    document.getElementById('email-err').style.display = 'block'; ok = false;
+  } else { document.getElementById('email-err').style.display = 'none'; }
+  if (!phone) {
+    document.getElementById('phone-err').style.display = 'block'; ok = false;
+  } else { document.getElementById('phone-err').style.display = 'none'; }
+  if (!ok) return;
+  document.getElementById('send-otp-btn').disabled = true;
+  document.getElementById('send-otp-btn').textContent = 'Sending…';
+  setTimeout(() => {
+    appState.pendingEmail = email;
+    appState.pendingPhone = phone;
+    document.getElementById('otp-email-display').textContent = email;
+    document.getElementById('send-otp-btn').disabled = false;
+    document.getElementById('send-otp-btn').innerHTML = 'Continue <i class="fa-solid fa-arrow-right" style="margin-left:8px;"></i>';
+    showScreen('screen-otp');
+    document.getElementById('otp-1').focus();
+  }, 700);
+}
+
+function otpNext(el, idx) {
+  el.value = el.value.replace(/\D/g,'');
+  if (el.value && idx < 6) document.getElementById('otp-'+(idx+1)).focus();
+  const full = [1,2,3,4,5,6].map(i=>document.getElementById('otp-'+i).value).join('');
+  document.getElementById('verify-btn').disabled = full.length < 6;
+}
+
+function verifyOtp() {
+  const otp = [1,2,3,4,5,6].map(i=>document.getElementById('otp-'+i).value).join('');
+  if (otp !== '123456') {
+    document.getElementById('otp-err').style.display = 'block'; return;
+  }
+  document.getElementById('otp-err').style.display = 'none';
+  document.getElementById('verify-btn').disabled = true;
+  document.getElementById('verify-btn').textContent = 'Verifying…';
+  setTimeout(() => {
+    const stored = localStorage.getItem('mediflow_phar_user');
+    appState.user = { email: appState.pendingEmail, phone: appState.pendingPhone };
+    if (stored) {
+      try { appState.profile = JSON.parse(stored); } catch {}
+    }
+    document.getElementById('verify-btn').disabled = false;
+    document.getElementById('verify-btn').textContent = 'Verify & Continue';
+    if (!appState.profile) {
+      showScreen('screen-onboarding');
+    } else {
+      launchApp();
+    }
+  }, 700);
+}
+
+function selectGender(val, el) {
+  document.querySelectorAll('.gender-chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  appState.selectedGender = val;
+}
+
+function completeOnboarding() {
+  const name = document.getElementById('ob-name').value.trim();
+  const shop = document.getElementById('ob-shop').value.trim();
+  const age = document.getElementById('ob-age').value.trim();
+  if (!name) { showToast('Please enter your name'); return; }
+  if (!shop) { showToast('Please enter your pharmacy name/address'); return; }
+  appState.profile = { name, shop, age, gender: appState.selectedGender||'Other' };
+  localStorage.setItem('mediflow_phar_user', JSON.stringify(appState.profile));
+  launchApp();
+}
+
+function handleLogout() {
+  localStorage.removeItem('mediflow_phar_user');
+  appState.user = null; appState.profile = null;
+  showScreen('screen-login');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LAUNCH APP
+═══════════════════════════════════════════════════════════ */
+function launchApp() {
+  const prof = appState.profile;
+  const displayName = prof?.name || appState.user?.email?.split('@')[0] || 'Pharmacist';
+  const av = initials(displayName);
+
+  document.getElementById('hd-greeting').textContent = greeting();
+  document.getElementById('hd-name').textContent = displayName;
+  document.getElementById('hd-avatar').textContent = av;
+
+  // Profile tab
+  document.getElementById('prof-avatar').textContent = av;
+  document.getElementById('prof-name').textContent = displayName;
+  document.getElementById('prof-shop').textContent = '📍 ' + (prof?.shop || 'Your Pharmacy');
+  document.getElementById('prof-phone').textContent = '📞 ' + (appState.user?.phone || '—');
+
+  renderOrdersTab();
+  renderRxTab();
+  renderInventoryTab();
+  renderProfileStats();
+  renderProfilePanels();
+
+  showScreen('screen-main');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════════════ */
+function switchTab(tabId, navId) {
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  document.getElementById(navId).classList.add('active');
+  appState.currentTab = tabId;
+  document.getElementById('fab-add').style.display = tabId==='tab-inventory' ? 'flex' : 'none';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ORDERS TAB
+═══════════════════════════════════════════════════════════ */
+function renderOrdersTab() {
+  const pending = MOCK_ORDERS.filter(o=>o.status==='pending').length;
+  const delivered = MOCK_ORDERS.filter(o=>o.status==='delivered').length;
+  const processing = MOCK_ORDERS.filter(o=>o.status==='processing').length;
+  const revenue = MOCK_ORDERS.filter(o=>o.status==='delivered').reduce((s,o)=>s+o.totalAmount,0);
+  document.getElementById('stat-pending').textContent = pending;
+  document.getElementById('stat-delivered').textContent = delivered;
+  document.getElementById('stat-processing').textContent = processing;
+  document.getElementById('stat-revenue').textContent = '₦'+revenue.toLocaleString();
+  document.getElementById('orders-count-badge').textContent = MOCK_ORDERS.length;
+
+  const list = document.getElementById('orders-list');
+  list.innerHTML = MOCK_ORDERS.map(o => `
+    <div class="order-card" onclick="openOrderDrawer('${o.id}')">
+      <div class="order-card-top">
+        <div>
+          <div class="order-patient">${o.patientName}</div>
+          <div class="order-phone">${o.patientPhone}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+          ${badge(o.status)}
+          ${o.hasPrescription ? '<span class="badge badge-rx">Rx</span>' : ''}
+        </div>
+      </div>
+      <div class="order-meds">💊 ${o.medicines.map(m=>m.name).join(', ')}</div>
+      <div class="order-footer">
+        <span class="order-amount">₦${o.totalAmount.toLocaleString()}</span>
+        <span class="order-date">${timeAgo(o.createdAt)}</span>
+      </div>
+    </div>`).join('');
+}
+
+function openOrderDrawer(id) {
+  const o = MOCK_ORDERS.find(x=>x.id===id);
+  if (!o) return;
+  const statusOpts = ['pending','processing','ready','delivered','cancelled']
+    .map(s=>`<option value="${s}"${s===o.status?' selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('');
+
+  document.getElementById('order-drawer-body').innerHTML = `
+    <div class="detail-row"><span class="detail-label">Patient</span><span class="detail-value">${o.patientName}</span></div>
+    <div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">${o.patientPhone}</span></div>
+    <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">${badge(o.status)}</span></div>
+    <div class="detail-row"><span class="detail-label">Total Amount</span><span class="detail-value" style="color:var(--c4);font-size:18px;">₦${o.totalAmount.toLocaleString()}</span></div>
+    <div class="detail-row"><span class="detail-label">Created</span><span class="detail-value">${new Date(o.createdAt).toLocaleString()}</span></div>
+    <div class="detail-row"><span class="detail-label">Prescription</span><span class="detail-value">${o.hasPrescription ? '✅ Yes' : '❌ No'}</span></div>
+    <div style="margin-top:14px;">
+      <div style="font-size:12px;font-weight:800;color:var(--gray-text);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px;">Medicines</div>
+      ${o.medicines.map(m=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F3F4F6;font-size:13px;font-weight:600;color:#374151;"><span>${m.name} × ${m.qty}</span><span style="color:var(--c4);">₦${m.price}</span></div>`).join('')}
+    </div>
+    <div style="margin-top:18px;">
+      <label class="form-label">Update Status</label>
+      <select class="status-select" id="order-status-sel">${statusOpts}</select>
+      <button class="btn-primary" onclick="updateOrderStatus('${o.id}')">Save Status</button>
+    </div>`;
+  document.getElementById('order-overlay').classList.add('open');
+  document.getElementById('order-drawer').classList.add('open');
+}
+
+function closeOrderDrawer() {
+  document.getElementById('order-overlay').classList.remove('open');
+  document.getElementById('order-drawer').classList.remove('open');
+}
+
+function updateOrderStatus(id) {
+  const sel = document.getElementById('order-status-sel').value;
+  const o = MOCK_ORDERS.find(x=>x.id===id);
+  if (o) { o.status = sel; }
+  closeOrderDrawer();
+  renderOrdersTab();
+  renderProfileStats();
+  showToast('✅ Status updated to ' + sel);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PRESCRIPTIONS TAB
+═══════════════════════════════════════════════════════════ */
+function renderRxTab() {
+  document.getElementById('rx-count-badge').textContent = MOCK_PRESCRIPTIONS.length;
+  document.getElementById('rx-list').innerHTML = MOCK_PRESCRIPTIONS.map(rx => `
+    <div class="rx-card">
+      <div class="rx-top">
+        <span class="rx-id">${rx.id}</span>
+        ${badge(rx.status)}
+      </div>
+      <div class="rx-patient">${rx.patient}</div>
+      <div class="rx-med">💊 ${rx.medicine} × ${rx.qty}</div>
+      <div style="font-size:12px;color:var(--gray-text);margin-top:4px;font-weight:600;">👨‍⚕️ ${rx.doctor}</div>
+      ${rx.notes ? `<div style="font-size:12px;color:#374151;margin-top:4px;font-style:italic;">"${rx.notes}"</div>` : ''}
+      <div class="rx-footer">
+        <span style="font-size:12px;color:var(--gray-text);font-weight:600;">${rx.date}</span>
+        <div style="display:flex;gap:8px;">
+          ${rx.status !== 'Filled' ? `<button class="btn-sm btn-teal" onclick="fulfillRx('${rx.id}')">Fulfill Rx</button>` : '<span style="font-size:12px;color:#059669;font-weight:800;">✅ Filled</span>'}
+          <button class="btn-sm btn-ghost" onclick="showToast('Prescription ${rx.id} details copied')">${rx.patientPhone}</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function fulfillRx(id) {
+  const rx = MOCK_PRESCRIPTIONS.find(r=>r.id===id);
+  if (rx) { rx.status = 'Filled'; }
+  renderRxTab();
+  renderProfileStats();
+  showToast('✅ Prescription '+id+' marked as Filled');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   INVENTORY TAB
+═══════════════════════════════════════════════════════════ */
+function renderCatPills() {
+  const cats = ['All', ...new Set(MOCK_MEDICINES.map(m=>m.category).filter(Boolean))];
+  document.getElementById('cat-pills-row').innerHTML = cats.map(c =>
+    `<div class="cat-pill${c===appState.invFilter?' active':''}" onclick="setCatFilter('${c}')">${c}</div>`
+  ).join('');
+}
+
+function setCatFilter(cat) {
+  appState.invFilter = cat;
+  renderCatPills();
+  renderMedCards();
+}
+
+function filterInventory() {
+  renderMedCards();
+}
+
+function renderInventoryTab() {
+  renderCatPills();
+  renderMedCards();
+}
+
+function renderMedCards() {
+  const q = (document.getElementById('inv-search').value||'').toLowerCase();
+  const filtered = MOCK_MEDICINES.filter(m => {
+    const matchCat = appState.invFilter==='All' || m.category===appState.invFilter;
+    const matchQ = !q || m.name.toLowerCase().includes(q) || (m.category||'').toLowerCase().includes(q) || (m.type||'').toLowerCase().includes(q);
+    return matchCat && matchQ;
+  });
+  document.getElementById('med-count-badge').textContent = filtered.length;
+  document.getElementById('med-list').innerHTML = filtered.map(m => {
+    const stockClass = m.stock === 0 ? 'stock-out' : m.stock < 30 ? 'stock-low' : 'stock-ok';
+    const stockLabel = m.stock === 0 ? 'Out of stock' : m.stock < 30 ? 'Low: '+m.stock : m.stock+' units';
+    return `<div class="med-card">
+      <div class="med-icon" style="background:${medIconBg(m.category)}">${medIcon(m.category)}</div>
+      <div class="med-body">
+        <div class="med-name">${m.name}</div>
+        <div class="med-meta">${m.category||'—'} · ${m.type||'—'}</div>
+        ${m.description ? `<div style="font-size:11px;color:var(--gray-text);margin-top:4px;">${m.description}</div>` : ''}
+        <div class="med-footer">
+          <span class="med-price">₦${m.price||0}</span>
+          <span class="med-stock ${stockClass}">${stockLabel}</span>
+        </div>
+        <div class="med-actions">
+          <button class="btn-sm btn-ghost" onclick="openEditMed('${m.id}')"><i class="fa-solid fa-pen" style="margin-right:5px;font-size:10px;"></i>Edit</button>
+          <button class="btn-sm btn-red" onclick="deleteMed('${m.id}')"><i class="fa-solid fa-trash" style="margin-right:5px;font-size:10px;"></i>Delete</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('') || '<div style="text-align:center;padding:32px;color:var(--gray-text);font-weight:600;">No medicines found.</div>';
+}
+
+function openAddMed() {
+  appState.editMedId = null;
+  document.getElementById('med-drawer-title').textContent = 'Add Medicine';
+  document.getElementById('mf-save-btn').textContent = 'Add Medicine';
+  ['mf-name','mf-category','mf-price','mf-stock','mf-desc'].forEach(id=>{
+    document.getElementById(id).value='';
+  });
+  document.getElementById('mf-type').value='';
+  document.getElementById('med-form-err').style.display='none';
+  document.getElementById('med-overlay').classList.add('open');
+  document.getElementById('med-drawer').classList.add('open');
+}
+
+function openEditMed(id) {
+  const m = MOCK_MEDICINES.find(x=>x.id===id);
+  if (!m) return;
+  appState.editMedId = id;
+  document.getElementById('med-drawer-title').textContent = 'Edit Medicine';
+  document.getElementById('mf-save-btn').textContent = 'Save Changes';
+  document.getElementById('mf-name').value = m.name;
+  document.getElementById('mf-category').value = m.category||'';
+  document.getElementById('mf-type').value = m.type||'';
+  document.getElementById('mf-price').value = m.price||'';
+  document.getElementById('mf-stock').value = m.stock||'';
+  document.getElementById('mf-desc').value = m.description||'';
+  document.getElementById('med-form-err').style.display='none';
+  document.getElementById('med-overlay').classList.add('open');
+  document.getElementById('med-drawer').classList.add('open');
+}
+
+function closeMedDrawer() {
+  document.getElementById('med-overlay').classList.remove('open');
+  document.getElementById('med-drawer').classList.remove('open');
+}
+
+function saveMedicine() {
+  const name = document.getElementById('mf-name').value.trim();
+  const price = parseFloat(document.getElementById('mf-price').value);
+  const stock = parseInt(document.getElementById('mf-stock').value, 10);
+  const errEl = document.getElementById('med-form-err');
+  if (!name) { errEl.textContent='Name is required.'; errEl.style.display='block'; return; }
+  if (isNaN(price)||price<0) { errEl.textContent='Enter a valid price.'; errEl.style.display='block'; return; }
+  if (isNaN(stock)||stock<0) { errEl.textContent='Enter a valid stock quantity.'; errEl.style.display='block'; return; }
+  errEl.style.display='none';
+  const payload = {
+    name,
+    category: document.getElementById('mf-category').value.trim()||'Other',
+    type: document.getElementById('mf-type').value||'Other',
+    price, stock,
+    description: document.getElementById('mf-desc').value.trim()
+  };
+  if (appState.editMedId) {
+    const idx = MOCK_MEDICINES.findIndex(m=>m.id===appState.editMedId);
+    if (idx>-1) MOCK_MEDICINES[idx] = { ...MOCK_MEDICINES[idx], ...payload };
+    showToast('✅ Medicine updated');
+  } else {
+    MOCK_MEDICINES.unshift({ id:'med_'+Date.now(), ...payload });
+    showToast('✅ Medicine added');
+  }
+  closeMedDrawer();
+  renderInventoryTab();
+}
+
+function deleteMed(id) {
+  const m = MOCK_MEDICINES.find(x=>x.id===id);
+  if (!m) return;
+  if (!confirm('Delete "'+m.name+'"? This cannot be undone.')) return;
+  MOCK_MEDICINES = MOCK_MEDICINES.filter(x=>x.id!==id);
+  renderInventoryTab();
+  showToast('🗑️ '+m.name+' removed');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PROFILE TAB
+═══════════════════════════════════════════════════════════ */
+function renderProfileStats() {
+  const filled = MOCK_PRESCRIPTIONS.filter(r=>r.status==='Filled').length;
+  const pending = MOCK_ORDERS.filter(o=>o.status==='pending').length;
+  const rev = MOCK_ORDERS.filter(o=>o.status==='delivered').reduce((s,o)=>s+o.totalAmount,0);
+  document.getElementById('ps-filled').textContent = filled;
+  document.getElementById('ps-pending').textContent = pending;
+  document.getElementById('ps-orders').textContent = MOCK_ORDERS.length;
+  document.getElementById('ps-rev').textContent = '₦'+rev.toLocaleString();
+}
+
+function renderProfilePanels() {
+  // Prescriptions panel
+  document.getElementById('pt-rx').innerHTML = `
+    <table class="earn-table" style="width:100%;border-radius:16px;overflow:hidden;">
+      <thead><tr><th>Rx ID</th><th>Patient</th><th>Medicine</th><th>Date</th><th>Status</th></tr></thead>
+      <tbody>${MOCK_PRESCRIPTIONS.map(rx=>`<tr>
+        <td style="color:var(--c4);">${rx.id}</td>
+        <td>${rx.patient}</td>
+        <td>${rx.medicine}</td>
+        <td>${rx.date}</td>
+        <td>${badge(rx.status)}</td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+
+  // Orders panel
+  document.getElementById('pt-orders').innerHTML = `
+    <table class="earn-table" style="width:100%;border-radius:16px;overflow:hidden;">
+      <thead><tr><th>Order ID</th><th>Patient</th><th>Amount</th><th>Status</th></tr></thead>
+      <tbody>${MOCK_ORDERS.map(o=>`<tr>
+        <td style="color:var(--c4);">${o.id.replace('ord_','ORD-')}</td>
+        <td>${o.patientName}</td>
+        <td style="font-weight:800;color:var(--c4);">₦${o.totalAmount.toLocaleString()}</td>
+        <td>${badge(o.status)}</td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+
+  // Earnings panel
+  const totalRev = MONTHLY_EARNINGS.reduce((s,r)=>s+(parseInt(r.revenue.replace(/[^0-9]/g,''))||0), 0);
+  document.getElementById('pt-earn').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
+      <div style="background:linear-gradient(135deg,var(--c1),#fff);border-radius:18px;padding:14px;text-align:center;border:1px solid var(--c2);">
+        <div style="font-size:17px;font-weight:800;color:var(--c4);">₦473,950</div>
+        <div style="font-size:10px;color:var(--gray-text);font-weight:700;">Total Revenue</div>
+      </div>
+      <div style="background:white;border-radius:18px;padding:14px;text-align:center;border:1px solid #F3F4F6;">
+        <div style="font-size:17px;font-weight:800;color:#059669;">₦31,500</div>
+        <div style="font-size:10px;color:var(--gray-text);font-weight:700;">This Month</div>
+      </div>
+      <div style="background:white;border-radius:18px;padding:14px;text-align:center;border:1px solid #F3F4F6;">
+        <div style="font-size:17px;font-weight:800;color:#D97706;">₦1,375</div>
+        <div style="font-size:10px;color:var(--gray-text);font-weight:700;">Avg. Order</div>
+      </div>
+    </div>
+    <table class="earn-table" style="width:100%;border-radius:16px;overflow:hidden;">
+      <thead><tr><th>Month</th><th>Orders</th><th>Revenue</th></tr></thead>
+      <tbody>${MONTHLY_EARNINGS.map(e=>`<tr>
+        <td>${e.month}</td>
+        <td>${e.orders}</td>
+        <td style="font-weight:800;color:#059669;">${e.revenue}</td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+}
+
+function switchPtab(panelId, el) {
+  document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.ptab-panel').forEach(p=>p.style.display='none');
+  el.classList.add('active');
+  document.getElementById(panelId).style.display='block';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════ */
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const loader = document.getElementById('pill-loader');
+    loader.style.opacity = '0';
+    setTimeout(() => { loader.style.display = 'none'; }, 400);
+    // Auto-login if profile stored
+    const stored = localStorage.getItem('mediflow_phar_user');
+    if (stored) {
+      try {
+        appState.profile = JSON.parse(stored);
+        appState.user = { phone: '+2340000000000', email: 'demo@gmail.com' };
+        launchApp();
+      } catch { showScreen('screen-login'); }
+    } else {
+      showScreen('screen-login');
+    }
+  }, 1200);
+});
+</script>
+</body>
+</html>
