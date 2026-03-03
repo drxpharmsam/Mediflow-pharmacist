@@ -1,3 +1,4 @@
+
 # MediFlow Pharmacist
 
 A fully-responsive pharmacist web application built with React + TypeScript + Vite and Material UI, featuring a glassmorphism UI with the **Blueberry Cotton Candy** palette (`#FFB7FD`, `#A8C0EE`, `#C58BE5`).
