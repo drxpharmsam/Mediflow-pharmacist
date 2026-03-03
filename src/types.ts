@@ -38,4 +38,18 @@ export interface Medicine {
   stock?: number
   description?: string
   imageUrl?: string
+  salt?: string
+  saltStrength?: string
+}
+
+export interface MedicineAlternative {
+  medicineId: string
+  brandName: string
+  qty: number
+  price?: number
+}
+
+export interface PrescriptionAlternative {
+  prescribedName: string
+  alternatives: MedicineAlternative[]
 }

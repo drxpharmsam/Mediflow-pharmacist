@@ -40,9 +40,10 @@ const ORDER_STATUSES = ['pending', 'processing', 'ready', 'delivered', 'cancelle
 interface OrdersTableProps {
   title: string
   filterFn?: (order: Order) => boolean
+  onFulfillRx?: (orderId: string) => void
 }
 
-export default function OrdersTable({ title, filterFn }: OrdersTableProps) {
+export default function OrdersTable({ title, filterFn, onFulfillRx }: OrdersTableProps) {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -127,6 +128,17 @@ export default function OrdersTable({ title, filterFn }: OrdersTableProps) {
                     <Button size="small" onClick={() => handleRowClick(order)}>
                       View
                     </Button>
+                    {onFulfillRx && (order.hasPrescription || order.rxImageUrl) && (
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        color="secondary"
+                        sx={{ ml: 1 }}
+                        onClick={() => onFulfillRx(order._id)}
+                      >
+                        Fulfill Rx
+                      </Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
