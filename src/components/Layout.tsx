@@ -10,6 +10,8 @@ import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
+import Avatar from '@mui/material/Avatar'
+import Tooltip from '@mui/material/Tooltip'
 import BottomNavigation from '@mui/material/BottomNavigation'
 import BottomNavigationAction from '@mui/material/BottomNavigationAction'
 import Paper from '@mui/material/Paper'
@@ -32,9 +34,16 @@ const navItems = [
 export default function Layout() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { logout } = useAuth()
+  const { logout, user, profile } = useAuth()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+
+  const displayName = profile?.name || user?.name || user?.phone || 'P'
+  const initials = displayName
+    .split(' ')
+    .slice(0, 2)
+    .map((w: string) => w[0]?.toUpperCase() ?? '')
+    .join('')
 
   const handleLogout = () => {
     logout()
@@ -57,6 +66,24 @@ export default function Layout() {
             <Typography variant="h6" noWrap sx={{ flexGrow: 1 }}>
               💊 MediFlow
             </Typography>
+            <Tooltip title="View Profile">
+              <IconButton onClick={() => navigate('/profile')} sx={{ p: 0.5, mr: 1 }}>
+                <Avatar
+                  src={profile?.photo || undefined}
+                  sx={{
+                    width: 34,
+                    height: 34,
+                    fontSize: 14,
+                    fontWeight: 700,
+                    background: 'rgba(255,255,255,0.3)',
+                    color: '#fff',
+                    border: '2px solid rgba(255,255,255,0.6)',
+                  }}
+                >
+                  {initials}
+                </Avatar>
+              </IconButton>
+            </Tooltip>
             <IconButton color="inherit" onClick={handleLogout} title="Logout">
               <LogoutIcon />
             </IconButton>
@@ -104,6 +131,26 @@ export default function Layout() {
           <Typography variant="h6" noWrap sx={{ flexGrow: 1 }}>
             💊 MediFlow Pharmacist
           </Typography>
+          <Tooltip title="View Profile">
+            <IconButton onClick={() => navigate('/profile')} sx={{ p: 0.5 }}>
+              <Avatar
+                src={profile?.photo || undefined}
+                sx={{
+                  width: 38,
+                  height: 38,
+                  fontSize: 15,
+                  fontWeight: 700,
+                  background: 'rgba(255,255,255,0.3)',
+                  color: '#fff',
+                  border: '2px solid rgba(255,255,255,0.7)',
+                  cursor: 'pointer',
+                  '&:hover': { opacity: 0.85 },
+                }}
+              >
+                {initials}
+              </Avatar>
+            </IconButton>
+          </Tooltip>
         </Toolbar>
       </AppBar>
 

@@ -11,6 +11,7 @@ import OnboardingPage from './pages/OnboardingPage'
 import OrdersPage from './pages/OrdersPage'
 import PrescriptionsPage from './pages/PrescriptionsPage'
 import InventoryPage from './pages/InventoryPage'
+import ProfilePage from './pages/ProfilePage'
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
                 <Route path="orders" element={<OrdersPage />} />
                 <Route path="prescriptions" element={<PrescriptionsPage />} />
                 <Route path="inventory" element={<InventoryPage />} />
+                <Route path="profile" element={<ProfilePage />} />
               </Route>
               <Route path="*" element={<Navigate to="/orders" replace />} />
             </Routes>
