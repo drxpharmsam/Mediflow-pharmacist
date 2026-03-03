@@ -91,6 +91,33 @@ src/
 | `/#/orders` | All orders table with status update |
 | `/#/prescriptions` | Orders with prescriptions attached |
 | `/#/inventory` | Medicine catalog with search |
+| `/#/profile` | Pharmacist profile, stats, prescriptions, orders & earnings |
+
+## Screenshots
+
+### Authentication
+| Sign In | Register | OTP Verification |
+|---|---|---|
+| ![Login](docs/screenshots/01_login_page.png) | ![Register](docs/screenshots/02_login_register_tab.png) | ![OTP](docs/screenshots/03_login_otp_step.png) |
+
+### Onboarding
+| Personal Info | Location |
+|---|---|
+| ![Personal Info](docs/screenshots/04_onboarding_personal_info.png) | ![Location](docs/screenshots/05_onboarding_location.png) |
+
+### Main App
+| Orders | Order Detail | Prescriptions |
+|---|---|---|
+| ![Orders](docs/screenshots/06_orders_page.png) | ![Order Detail](docs/screenshots/07_order_detail_drawer.png) | ![Prescriptions](docs/screenshots/08_prescriptions_page.png) |
+
+| Prescription Fulfill | Inventory | Add Medicine |
+|---|---|---|
+| ![Fulfill Rx](docs/screenshots/09_prescription_fulfill_page.png) | ![Inventory](docs/screenshots/10_inventory_page.png) | ![Add Medicine](docs/screenshots/11_inventory_add_medicine_dialog.png) |
+
+### Profile
+| Prescriptions Tab | Order Status Tab | Earnings Tab |
+|---|---|---|
+| ![Profile Rx](docs/screenshots/12_profile_prescriptions_tab.png) | ![Profile Orders](docs/screenshots/13_profile_order_status_tab.png) | ![Earnings](docs/screenshots/14_profile_earnings_tab.png) |
 
 ## Deployment – GitHub Pages
 
