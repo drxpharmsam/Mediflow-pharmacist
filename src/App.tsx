@@ -10,6 +10,7 @@ import LoginPage from './pages/LoginPage'
 import OnboardingPage from './pages/OnboardingPage'
 import OrdersPage from './pages/OrdersPage'
 import PrescriptionsPage from './pages/PrescriptionsPage'
+import PrescriptionFulfillPage from './pages/PrescriptionFulfillPage'
 import InventoryPage from './pages/InventoryPage'
 import ProfilePage from './pages/ProfilePage'
 
@@ -41,6 +42,7 @@ function App() {
                 <Route index element={<Navigate to="/orders" replace />} />
                 <Route path="orders" element={<OrdersPage />} />
                 <Route path="prescriptions" element={<PrescriptionsPage />} />
+                <Route path="prescriptions/:orderId/fulfill" element={<PrescriptionFulfillPage />} />
                 <Route path="inventory" element={<InventoryPage />} />
                 <Route path="profile" element={<ProfilePage />} />
               </Route>
